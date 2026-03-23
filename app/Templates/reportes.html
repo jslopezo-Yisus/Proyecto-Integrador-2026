@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mt-4">Lista de Reportes</h2>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Dirección</th>
+            <th>Tipo</th>
+            <th>Prioridad</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in reportes %}
+        <tr>
+            <td>{{ r.nombre }}</td>
+            <td>{{ r.direccion }}</td>
+            <td>{{ r.tipo_dano }}</td>
+            <td>{{ r.prioridad }}</td>
+            <td>
+                <a href="/detalle/{{ r.id }}" class="btn btn-info btn-sm">Ver</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

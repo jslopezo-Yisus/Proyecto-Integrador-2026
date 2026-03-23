@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mt-4">Detalle del Reporte</h2>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <p><strong>Nombre:</strong> {{ reporte.nombre }}</p>
+        <p><strong>Correo:</strong> {{ reporte.correo }}</p>
+        <p><strong>Dirección:</strong> {{ reporte.direccion }}</p>
+        <p><strong>Tipo de daño:</strong> {{ reporte.tipo_dano }}</p>
+        <p><strong>Prioridad:</strong> {{ reporte.prioridad }}</p>
+        <p><strong>Descripción:</strong> {{ reporte.descripcion }}</p>
+    </div>
+</div>
+
+{% endblock %}

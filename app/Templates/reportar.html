@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mt-4">Reporte de Daños</h2>
+
+<form method="POST">
+
+    <input class="form-control mb-2" type="text" name="nombre" placeholder="Nombre" required>
+    <input class="form-control mb-2" type="email" name="correo" placeholder="Correo" required>
+    <input class="form-control mb-2" type="text" name="direccion" placeholder="Dirección" required>
+
+    <select class="form-control mb-2" name="tipo_dano">
+        <option>Daño estructural</option>
+        <option>Problema eléctrico</option>
+        <option>Fuga de agua</option>
+    </select>
+
+    <select class="form-control mb-2" name="prioridad">
+        <option>Baja</option>
+        <option>Media</option>
+        <option>Alta</option>
+    </select>
+
+    <textarea class="form-control mb-2" name="descripcion" placeholder="Descripción"></textarea>
+
+    <button class="btn btn-primary">Enviar</button>
+
+</form>
+
+{% endblock %}
