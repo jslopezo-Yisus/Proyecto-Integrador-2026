@@ -16,3 +16,7 @@
 </div>
 
 {% endblock %}
+
+{% if reporte.imagen %}
+    <img src="{{ url_for('static', filename='img/' + reporte.imagen) }}" width="200">
+{% endif %}

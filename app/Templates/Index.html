@@ -1,8 +1,81 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio | Reporte de Incidencias</title>
 
-{% block content %}
-<div class="text-center mt-5">
-    <h1>Bienvenido al sistema de reportes</h1>
-    <p>Reporta daños en tu vivienda de forma rápida y sencilla</p>
-</div>
-{% endblock %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- 🔷 HEADER -->
+<header class="header">
+    <div class="container nav">
+        <h1 class="logo">🏠 MiHogar</h1>
+
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="/reportar">Reportar</a>
+            <a href="/reportes">Incidencias</a>
+            <a href="/login">Login</a>
+        </nav>
+    </div>
+</header>
+
+<!-- 🔵 HERO -->
+<section class="hero">
+    <div class="container hero-content">
+        <h2>Reporta incidencias de tu hogar en segundos</h2>
+        <p>No necesitas registrarte para comenzar</p>
+
+        <div class="hero-buttons">
+            <a href="/reportar" class="btn primary">Reportar incidencia</a>
+            <a href="/reportes" class="btn secondary">Ver incidencias</a>
+        </div>
+    </div>
+</section>
+
+<!-- ⚙️ CÓMO FUNCIONA -->
+<section class="como-funciona container">
+    <h2>¿Cómo funciona?</h2>
+
+    <div class="steps">
+        <div class="step">
+            <h3>1️⃣ Reporta</h3>
+            <p>Describe el problema de forma rápida y sencilla.</p>
+        </div>
+
+        <div class="step">
+            <h3>2️⃣ Recibe tu ID</h3>
+            <p>Obtén un código para hacer seguimiento.</p>
+        </div>
+
+        <div class="step">
+            <h3>3️⃣ Haz seguimiento</h3>
+            <p>Consulta el estado o crea una cuenta para más opciones.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 📊 CTA REGISTRO -->
+<section class="cta">
+    <div class="container">
+        <h2>¿Quieres hacer seguimiento a tus reportes?</h2>
+        <p>Crea una cuenta y gestiona todo desde un solo lugar</p>
+        <a href="/registro" class="btn primary">Crear cuenta</a>
+    </div>
+</section>
+
+<!-- 🔚 FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <p>© 2026 MiHogar | Proyecto Integrador</p>
+    </div>
+</footer>
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

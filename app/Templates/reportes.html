@@ -29,4 +29,25 @@
     </tbody>
 </table>
 
+<h2>Reportes</h2>
+
+<table>
+<tr>
+    <th>ID</th>
+    <th>Nombre</th>
+    <th>Acciones</th>
+</tr>
+
+{% for r in reportes %}
+<tr>
+    <td>{{ r.id }}</td>
+    <td>{{ r.nombre }}</td>
+    <td>
+        <a href="/detalle/{{ r.id }}">Ver</a>
+        <a href="/editar/{{ r.id }}">Editar</a>
+        <a href="/eliminar/{{ r.id }}">Eliminar</a>
+    </td>
+</tr>
+{% endfor %}
+</table>
 {% endblock %}
