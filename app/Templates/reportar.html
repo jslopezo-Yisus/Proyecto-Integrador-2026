@@ -1,33 +1,69 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reportar incidencia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
 
-{% block content %}
+<header class="header">
+    <div class="container nav">
+        <h1 class="logo">🏠 MiHogar</h1>
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="/reportar">Reportar</a>
+            <a href="/reportes">Incidencias</a>
+        </nav>
+    </div>
+</header>
 
-<h2 class="mt-4">Reporte de Daños</h2>
+<section class="form-section">
+    <div class="container form-container">
 
-<form method="POST">
+        <h2>Reportar una incidencia</h2>
+        <p>Completa el formulario en pocos pasos</p>
 
-    <input class="form-control mb-2" type="text" name="nombre" placeholder="Nombre" required>
-    <input class="form-control mb-2" type="email" name="correo" placeholder="Correo" required>
-    <input class="form-control mb-2" type="text" name="direccion" placeholder="Dirección" required>
+        <form method="POST" enctype="multipart/form-data">
 
-    <select class="form-control mb-2" name="tipo_dano">
-        <option>Daño estructural</option>
-        <option>Problema eléctrico</option>
-        <option>Fuga de agua</option>
-    </select>
+            <label>Título del problema</label>
+            <input type="text" name="titulo" placeholder="Ej: Fuga de agua en cocina" required>
 
-    <select class="form-control mb-2" name="prioridad">
-        <option>Baja</option>
-        <option>Media</option>
-        <option>Alta</option>
-    </select>
+            <label>Descripción</label>
+            <textarea name="descripcion" placeholder="Describe la incidencia..." required></textarea>
 
-    <textarea class="form-control mb-2" name="descripcion" placeholder="Descripción"></textarea>
+            <label>Dirección</label>
+            <input type="text" name="direccion" placeholder="Dirección" required>
 
-    <button class="btn btn-primary">Enviar</button>
+            <label>Tipo de daño</label>
+            <select name="tipo_dano" required>
+                <option value="">Selecciona una opción</option>
+                <option value="eléctrico">Eléctrico</option>
+                <option value="plomería">Plomería</option>
+                <option value="estructura">Estructura</option>
+            </select>
 
-</form>
+            <label>Prioridad</label>
+            <select name="prioridad" required>
+                <option value="">Selecciona una opción</option>
+                <option value="baja">Baja</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+            </select>
 
-{% endblock %}
+            <label>Adjuntar imagen (opcional)</label>
+            <input type="file" name="imagen" accept="image/*">
 
-<form method="POST"></form>
+            <button type="submit" class="btn primary">Enviar reporte</button>
+
+        </form>
+
+    </div>
+</section>
+
+<footer class="footer">
+    <p>© 2026 MiHogar</p>
+</footer>
+
+</body>
+</html>

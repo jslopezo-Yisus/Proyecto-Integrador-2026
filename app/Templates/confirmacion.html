@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte enviado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header class="header">
+    <div class="container nav">
+        <h1 class="logo">🏠 MiHogar</h1>
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="/reportar">Reportar</a>
+            <a href="/reportes">Incidencias</a>
+        </nav>
+    </div>
+</header>
+
+<section class="confirmacion-section">
+    <div class="container confirmacion-box">
+
+        <h2>✅ ¡Reporte enviado con éxito!</h2>
+
+        <p class="mensaje">
+            Tu incidencia ha sido registrada correctamente.
+        </p>
+
+        <div class="reporte-id">
+            <p>ID de tu reporte:</p>
+            <h3>#{{ report_id }}</h3>
+        </div>
+
+        <p class="importante">
+            ⚠️ Guarda este ID para poder consultar el estado de tu reporte.
+        </p>
+
+        <div class="acciones">
+            <a href="/registro" class="btn primary">Crear cuenta y hacer seguimiento</a>
+            <a href="/" class="btn secondary">Volver al inicio</a>
+        </div>
+
+    </div>
+</section>
+
+<footer class="footer">
+    <p>© 2026 MiHogar</p>
+</footer>
+
+</body>
+</html>

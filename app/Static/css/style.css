@@ -118,3 +118,60 @@ body {
     text-align: center;
     padding: 20px 0;
 }
+
+.form-section {
+    padding: 60px 0;
+}
+
+.form-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+form input, form textarea, form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+form textarea {
+    height: 100px;
+}
+
+.confirmacion-section {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.confirmacion-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.reporte-id {
+    margin: 20px 0;
+}
+
+.reporte-id h3 {
+    font-size: 2rem;
+    color: #0d6efd;
+}
+
+.importante {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.acciones {
+    margin-top: 30px;
+}

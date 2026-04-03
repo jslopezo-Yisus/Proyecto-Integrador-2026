@@ -20,16 +20,16 @@ def index():
 @main.route('/reportar', methods=['GET', 'POST'])
 def reportar():
     if request.method == 'POST':
-
-        guest_token = str(uuid.uuid4())
-
+        
         imagen = request.files.get('imagen')
         nombre_imagen = None
 
         if imagen and imagen.filename != '':
             nombre_imagen = secure_filename(imagen.filename)
-            ruta = os.path.join(current_app.config['UPLOAD_FOLDER'], nombre_imagen)
+            ruta = os.path.join('app/static/img', nombre_imagen)
             imagen.save(ruta)
+
+        guest_token = str(uuid.uuid4())
 
         nuevo_reporte = Reporte(
             titulo=request.form['titulo'],
@@ -44,9 +44,10 @@ def reportar():
         db.session.add(nuevo_reporte)
         db.session.commit()
 
-        return render_template('confirmacion.html',
-                               report_id=nuevo_reporte.id,
-                               token=guest_token)
+        return render_template(
+            'confirmacion.html',
+            report_id=nuevo_reporte.id
+        )
 
     return render_template('reportar.html')
 
@@ -174,3 +175,12 @@ def admin():
 
     reportes = Reporte.query.all()
     return render_template('reportes.html', reportes=reportes)
+
+@main.route('/mis-reportes')
+def mis_reportes():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    reportes = Reporte.query.filter_by(user_id=session['user_id']).all()
+
+    return render_template('mis_reportes.html', reportes=reportes)
