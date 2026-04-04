@@ -5,6 +5,10 @@ from werkzeug.utils import secure_filename
 import os
 from flask import current_app
 import uuid
+from flask import render_template
+from .models import Reporte
+from flask import render_template, request, redirect, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 main = Blueprint('main', __name__)
 
@@ -61,16 +65,12 @@ def login():
 
         user = Usuario.query.filter_by(correo=correo).first()
 
-        if user and user.check_password(password):
+        if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
-            session['rol'] = user.rol
-
-            if user.rol == 'admin':
-                return redirect('/admin')
-            else:
-                return redirect('/')
+            flash('Bienvenido 👋', 'success')
+            return redirect('/reportes')
         else:
-            return "Credenciales incorrectas"
+            flash('Credenciales incorrectas ❌', 'danger')
 
     return render_template('login.html')
 
@@ -79,27 +79,20 @@ def login():
 @main.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        password = generate_password_hash(request.form['password'])
 
-        user = Usuario(
-            nombre=request.form['nombre'],
-            correo=request.form['correo']
+        nuevo_usuario = Usuario(
+            nombre=nombre,
+            correo=correo,
+            password=password
         )
-        user.set_password(request.form['password'])
 
-        db.session.add(user)
+        db.session.add(nuevo_usuario)
         db.session.commit()
 
-        # 🔗 Vincular reportes de invitado
-        token = request.form.get('guest_token')
-
-        if token:
-            reportes = Reporte.query.filter_by(guest_token=token).all()
-            for r in reportes:
-                r.user_id = user.id
-                r.guest_token = None
-
-            db.session.commit()
-
+        flash('Cuenta creada correctamente 🎉', 'success')
         return redirect('/login')
 
     return render_template('registro.html')
@@ -109,7 +102,8 @@ def registro():
 @main.route('/logout')
 def logout():
     session.clear()
-    return redirect('/')
+    flash('Sesión cerrada', 'info')
+    return redirect('/login')
 
 
 # 📊 Listar reportes

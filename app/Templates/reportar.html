@@ -1,69 +1,69 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Reportar incidencia</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends 'base.html' %}
 
-<header class="header">
-    <div class="container nav">
-        <h1 class="logo">🏠 MiHogar</h1>
-        <nav>
-            <a href="/">Inicio</a>
-            <a href="/reportar">Reportar</a>
-            <a href="/reportes">Incidencias</a>
-        </nav>
-    </div>
-</header>
+{% block content %}
 
-<section class="form-section">
-    <div class="container form-container">
+<div class="container mt-5">
 
-        <h2>Reportar una incidencia</h2>
-        <p>Completa el formulario en pocos pasos</p>
+    <div class="card shadow-lg p-4 form-card">
+
+        <h2 class="text-center mb-3">🚨 Reportar Incidencia</h2>
+        <p class="text-center text-muted mb-4">
+            Completa la información para registrar el problema
+        </p>
 
         <form method="POST" enctype="multipart/form-data">
 
-            <label>Título del problema</label>
-            <input type="text" name="titulo" placeholder="Ej: Fuga de agua en cocina" required>
+            <div class="mb-3">
+                <label class="form-label">Título del problema</label>
+                <input type="text" name="titulo" class="form-control" placeholder="Ej: Fuga de agua en cocina" required>
+            </div>
 
-            <label>Descripción</label>
-            <textarea name="descripcion" placeholder="Describe la incidencia..." required></textarea>
+            <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea name="descripcion" class="form-control" rows="4" placeholder="Describe la incidencia..." required></textarea>
+            </div>
 
-            <label>Dirección</label>
-            <input type="text" name="direccion" placeholder="Dirección" required>
+            <div class="mb-3">
+                <label class="form-label">Dirección</label>
+                <input type="text" name="direccion" class="form-control" placeholder="Dirección completa" required>
+            </div>
 
-            <label>Tipo de daño</label>
-            <select name="tipo_dano" required>
-                <option value="">Selecciona una opción</option>
-                <option value="eléctrico">Eléctrico</option>
-                <option value="plomería">Plomería</option>
-                <option value="estructura">Estructura</option>
-            </select>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tipo de daño</label>
+                    <select name="tipo_dano" class="form-select" required>
+                        <option value="">Selecciona</option>
+                        <option value="eléctrico">Eléctrico</option>
+                        <option value="plomería">Plomería</option>
+                        <option value="estructura">Estructura</option>
+                    </select>
+                </div>
 
-            <label>Prioridad</label>
-            <select name="prioridad" required>
-                <option value="">Selecciona una opción</option>
-                <option value="baja">Baja</option>
-                <option value="media">Media</option>
-                <option value="alta">Alta</option>
-            </select>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Prioridad</label>
+                    <select name="prioridad" class="form-select" required>
+                        <option value="">Selecciona</option>
+                        <option value="baja">Baja</option>
+                        <option value="media">Media</option>
+                        <option value="alta">Alta</option>
+                    </select>
+                </div>
+            </div>
 
-            <label>Adjuntar imagen (opcional)</label>
-            <input type="file" name="imagen" accept="image/*">
+            <div class="mb-3">
+                <label class="form-label">Adjuntar imagen</label>
+                <input type="file" name="imagen" class="form-control" accept="image/*">
+            </div>
 
-            <button type="submit" class="btn primary">Enviar reporte</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg w-100 btn-enviar">
+                    🚀 Enviar Reporte
+                </button>
+            </div>
 
         </form>
 
     </div>
-</section>
+</div>
 
-<footer class="footer">
-    <p>© 2026 MiHogar</p>
-</footer>
-
-</body>
-</html>
+{% endblock %}

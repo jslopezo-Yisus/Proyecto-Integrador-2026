@@ -1,8 +1,47 @@
-<h2>Registro</h2>
+{% extends 'base.html' %}
 
-<form method="POST">
-    <input type="text" name="nombre" placeholder="Nombre" required>
-    <input type="email" name="correo" placeholder="Correo" required>
-    <input type="password" name="password" placeholder="Contraseña" required>
-    <button type="submit">Registrarse</button>
-</form>
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+
+                <h3 class="text-center mb-4">📝 Crear Cuenta</h3>
+
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Correo</label>
+                        <input type="email" name="correo" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Contraseña</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+
+                    <button class="btn btn-success w-100">Registrarse</button>
+
+                </form>
+
+                <hr>
+
+                <p class="text-center">
+                    ¿Ya tienes cuenta?
+                    <a href="/login">Inicia sesión</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

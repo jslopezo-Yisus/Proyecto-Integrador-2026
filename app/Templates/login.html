@@ -1,7 +1,42 @@
-<h2>Login</h2>
+{% extends 'base.html' %}
 
-<form method="POST">
-    <input type="email" name="correo" placeholder="Correo" required>
-    <input type="password" name="password" placeholder="Contraseña" required>
-    <button type="submit">Ingresar</button>
-</form>
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+
+                <h3 class="text-center mb-4">🔐 Iniciar Sesión</h3>
+
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label>Correo</label>
+                        <input type="email" name="correo" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Contraseña</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+
+                    <button class="btn btn-primary w-100">Ingresar</button>
+
+                </form>
+
+                <hr>
+
+                <p class="text-center">
+                    ¿No tienes cuenta?
+                    <a href="/registro">Regístrate aquí</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

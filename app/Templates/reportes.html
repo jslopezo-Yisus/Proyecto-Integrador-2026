@@ -2,52 +2,53 @@
 
 {% block content %}
 
-<h2 class="mt-4">Lista de Reportes</h2>
+<div class="container mt-4">
 
-<table class="table table-bordered mt-3">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Dirección</th>
-            <th>Tipo</th>
-            <th>Prioridad</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for r in reportes %}
-        <tr>
-            <td>{{ r.nombre }}</td>
-            <td>{{ r.direccion }}</td>
-            <td>{{ r.tipo_dano }}</td>
-            <td>{{ r.prioridad }}</td>
-            <td>
-                <a href="/detalle/{{ r.id }}" class="btn btn-info btn-sm">Ver</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <h2>📋 Lista de Reportes</h2>
 
-<h2>Reportes</h2>
+    <table class="table table-bordered table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Tipo</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Imagen</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
 
-<table>
-<tr>
-    <th>ID</th>
-    <th>Nombre</th>
-    <th>Acciones</th>
-</tr>
+        <tbody>
+            {% for r in reportes %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.nombre }}</td>
+                <td>{{ r.direccion }}</td>
+                <td>{{ r.tipo_dano }}</td>
+                <td>{{ r.prioridad }}</td>
+                <td>{{ r.estado }}</td>
 
-{% for r in reportes %}
-<tr>
-    <td>{{ r.id }}</td>
-    <td>{{ r.nombre }}</td>
-    <td>
-        <a href="/detalle/{{ r.id }}">Ver</a>
-        <a href="/editar/{{ r.id }}">Editar</a>
-        <a href="/eliminar/{{ r.id }}">Eliminar</a>
-    </td>
-</tr>
-{% endfor %}
-</table>
+                <td>
+                    {% if r.imagen %}
+                        <img src="{{ url_for('static', filename='img/' + r.imagen) }}" width="80">
+                    {% else %}
+                        Sin imagen
+                    {% endif %}
+                </td>
+
+                <td>
+                    <a href="/detalle/{{ r.id }}" class="btn btn-info btn-sm">Ver</a>
+                    <a href="/editar/{{ r.id }}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="/eliminar/{{ r.id }}" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
 {% endblock %}
