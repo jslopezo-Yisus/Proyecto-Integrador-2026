@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">👷 Mis Tareas Asignadas</h2>
+
+<table class="table table-bordered shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Título</th>
+            <th>Dirección</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for r in reportes %}
+        <tr>
+            <td>{{ r.titulo }}</td>
+            <td>{{ r.direccion }}</td>
+            <td>
+                <span class="badge bg-warning text-dark">
+                    {{ r.estado }}
+                </span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}

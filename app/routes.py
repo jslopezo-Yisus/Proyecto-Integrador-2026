@@ -1,18 +1,15 @@
-from flask import Blueprint, render_template, request, redirect, session
-from .models import Reporte, Usuario
+from flask import Blueprint, render_template, request, redirect, session, flash
+from .models import Reporte, Usuario, TokenTecnico
 from . import db
 from werkzeug.utils import secure_filename
 import os
-from flask import current_app
+
 import uuid
-from flask import render_template
-from .models import Reporte
-from flask import render_template, request, redirect, session, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+
 
 main = Blueprint('main', __name__)
 
-# 🏠 Ruta principal
+# 🏠 Inicio
 @main.route('/')
 def index():
     return render_template('index.html')
@@ -24,7 +21,7 @@ def index():
 @main.route('/reportar', methods=['GET', 'POST'])
 def reportar():
     if request.method == 'POST':
-        
+
         imagen = request.files.get('imagen')
         nombre_imagen = None
 
@@ -33,7 +30,7 @@ def reportar():
             ruta = os.path.join('app/static/img', nombre_imagen)
             imagen.save(ruta)
 
-        guest_token = str(uuid.uuid4())
+
 
         nuevo_reporte = Reporte(
             titulo=request.form['titulo'],
@@ -42,58 +39,89 @@ def reportar():
             tipo_dano=request.form['tipo_dano'],
             prioridad=request.form['prioridad'],
             imagen=nombre_imagen,
-            guest_token=guest_token
+            user_id=session.get('user_id')
         )
 
         db.session.add(nuevo_reporte)
         db.session.commit()
 
-        return render_template(
-            'confirmacion.html',
-            report_id=nuevo_reporte.id
-        )
+        return render_template('confirmacion.html', report_id=nuevo_reporte.id)
 
     return render_template('reportar.html')
 
 
-# 🔐 Login
+# 🔐 LOGIN
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        correo = request.form['correo']
-        password = request.form['password']
+
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+        rol = request.form.get('rol')  # 👈 importante
 
         user = Usuario.query.filter_by(correo=correo).first()
 
-        if user and check_password_hash(user.password, password):
+        if user and user.check_password(password):
+
+            # 🔥 VALIDAR ROL CORRECTO
+            if user.rol != rol:
+                return "Rol incorrecto"
+
             session['user_id'] = user.id
-            flash('Bienvenido 👋', 'success')
-            return redirect('/reportes')
+            session['rol'] = user.rol
+
+            if user.rol == 'admin':
+                return redirect('/admin')
+            elif user.rol == 'tecnico':
+                return redirect('/tecnico')
+            else:
+                return redirect('/dashboard')
+
         else:
-            flash('Credenciales incorrectas ❌', 'danger')
+            return "Credenciales incorrectas"
 
     return render_template('login.html')
 
 
-# 📝 Registro
+# 📝 REGISTRO
 @main.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        correo = request.form['correo']
-        password = generate_password_hash(request.form['password'])
 
-        nuevo_usuario = Usuario(
+        nombre = request.form.get('nombre')
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+        rol = request.form.get('rol')
+        token = request.form.get('token')
+
+        # 🔥 VALIDAR SI YA EXISTE
+        if Usuario.query.filter_by(correo=correo).first():
+            return "El usuario ya existe"
+
+        # 🔐 VALIDAR TOKEN PARA TECNICO
+        if rol == 'tecnico':
+            if token != "123456":  # luego lo mejoramos
+                return "Token inválido"
+
+        user = Usuario(
             nombre=nombre,
             correo=correo,
-            password=password
+            rol=rol
         )
 
-        db.session.add(nuevo_usuario)
+        user.set_password(password)
+
+        db.session.add(user)
         db.session.commit()
 
-        flash('Cuenta creada correctamente 🎉', 'success')
-        return redirect('/login')
+        # 🔥 LOGIN AUTOMÁTICO
+        session['user_id'] = user.id
+        session['rol'] = user.rol
+
+        if rol == 'tecnico':
+            return redirect('/tecnico')
+        else:
+            return redirect('/dashboard')
 
     return render_template('registro.html')
 
@@ -102,11 +130,50 @@ def registro():
 @main.route('/logout')
 def logout():
     session.clear()
-    flash('Sesión cerrada', 'info')
+
     return redirect('/login')
 
 
-# 📊 Listar reportes
+# 👤 Dashboard usuario
+@main.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    reportes = Reporte.query.filter_by(user_id=session['user_id']).all()
+    return render_template('dashboard.html', reportes=reportes)
+
+
+# 👑 Admin
+@main.route('/admin')
+def admin():
+    if session.get('rol') != 'admin':
+        return redirect('/login')
+
+    reportes = Reporte.query.all()
+    tecnicos = Usuario.query.filter_by(rol='tecnico').all()
+
+    return render_template('admin.html', reportes=reportes, tecnicos=tecnicos)
+
+
+# 👷 Técnico
+@main.route('/tecnico')
+def tecnico():
+    # 🔐 Verificar si hay sesión activa
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    # 🔐 Verificar rol correcto
+    if session.get('rol') != 'tecnico':
+        return redirect('/')
+
+    # 📊 Obtener reportes asignados
+    reportes = Reporte.query.filter_by(tecnico_id=session['user_id']).all()
+
+    return render_template('tecnico.html', reportes=reportes)
+
+
+# 📊 Ver todos (opcional)
 @main.route('/reportes')
 def reportes():
     if 'user_id' not in session:
@@ -126,55 +193,35 @@ def detalle(id):
     return render_template('detalle.html', reporte=reporte)
 
 
-# ✏️ Editar
-@main.route('/editar/<int:id>', methods=['GET', 'POST'])
-def editar(id):
-    if 'user_id' not in session:
-        return redirect('/login')
-
-    reporte = Reporte.query.get_or_404(id)
-
-    if request.method == 'POST':
-        reporte.nombre = request.form['nombre']
-        reporte.descripcion = request.form['descripcion']
-
-        db.session.commit()
-        return redirect('/reportes')
-
-    return render_template('editar.html', reporte=reporte)
-
-
-# 🗑️ Eliminar (MEJORADO)
-@main.route('/eliminar/<int:id>', methods=['POST'])
-def eliminar(id):
-    if 'user_id' not in session:
-        return redirect('/login')
-
-    reporte = Reporte.query.get_or_404(id)
-
-    db.session.delete(reporte)
-    db.session.commit()
-
-    return redirect('/reportes')
-
-
-# 👑 Panel Admin
-@main.route('/admin')
-def admin():
-    if 'user_id' not in session:
-        return redirect('/login')
-
+# 🧠 Asignar técnico (ADMIN)
+@main.route('/asignar/<int:id>', methods=['POST'])
+def asignar(id):
     if session.get('rol') != 'admin':
         return redirect('/')
 
-    reportes = Reporte.query.all()
-    return render_template('reportes.html', reportes=reportes)
+    reporte = Reporte.query.get_or_404(id)
 
-@main.route('/mis-reportes')
-def mis_reportes():
-    if 'user_id' not in session:
+    reporte.tecnico_id = request.form['tecnico_id']
+    reporte.estado = 'asignado'
+
+    db.session.commit()
+
+    return redirect('/admin')
+
+
+# 🔐 Generar token (ADMIN)
+@main.route('/generar-token')
+def generar_token():
+
+    if session.get('rol') != 'admin':
+
         return redirect('/login')
 
-    reportes = Reporte.query.filter_by(user_id=session['user_id']).all()
+    nuevo_token = str(uuid.uuid4())
 
-    return render_template('mis_reportes.html', reportes=reportes)
+    token_db = TokenTecnico(token=nuevo_token)
+
+    db.session.add(token_db)
+    db.session.commit()
+
+    return f"Token generado: {nuevo_token}"

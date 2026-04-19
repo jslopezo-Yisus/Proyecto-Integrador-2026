@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">👑 Panel Administrador</h2>
+
+<a href="/generar-token" class="btn btn-dark mb-3">🔐 Generar Token</a>
+
+<table class="table table-bordered shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Título</th>
+            <th>Dirección</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Asignar Técnico</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for r in reportes %}
+        <tr>
+            <td>{{ r.titulo }}</td>
+            <td>{{ r.direccion }}</td>
+            <td>{{ r.prioridad }}</td>
+            <td>{{ r.estado }}</td>
+
+            <td>
+                <form method="POST" action="/asignar/{{ r.id }}">
+                    <select name="tecnico_id" class="form-select mb-2" required>
+                        <option value="">Seleccionar técnico</option>
+                        {% for t in tecnicos %}
+                            <option value="{{ t.id }}">{{ t.nombre }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <button class="btn btn-primary btn-sm">Asignar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}

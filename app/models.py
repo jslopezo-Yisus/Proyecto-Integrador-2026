@@ -1,10 +1,10 @@
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import uuid
 
 # 📊 Modelo de Reportes
-from datetime import datetime
-import uuid
+
 
 class Reporte(db.Model):
     __tablename__ = 'reportes'
@@ -21,8 +21,11 @@ class Reporte(db.Model):
 
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # 🔗 Relación con usuario (opcional)
+    # 🔗 Relación con usuario (cliente)
     user_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
+
+    # 👷 Técnico asignado
+    tecnico_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=True)
 
     # 👤 Invitado
     guest_token = db.Column(db.String(100), unique=True)
@@ -41,10 +44,28 @@ class Usuario(db.Model):
     password = db.Column(db.String(255), nullable=False)
     rol = db.Column(db.String(20), default='usuario')
 
-    # 🔐 Encriptar contraseña
+    tecnico = db.Column(db.String(100))
+    estado = db.Column(db.String(50), default='pendiente')
+
+    # 🔥 AGREGA ESTA LÍNEA
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
-    # 🔍 Verificar contraseña
+    
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+
+# 🔐 Modelo de Tokens para Técnicos (NUEVO)
+class TokenTecnico(db.Model):
+    __tablename__ = 'tokens_tecnico'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    token = db.Column(db.String(100), unique=True, nullable=False)
+
+    usado = db.Column(db.Boolean, default=False)
+
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)

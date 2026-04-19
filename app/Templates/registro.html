@@ -5,43 +5,58 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
 
-        <div class="card shadow-lg border-0">
-            <div class="card-body p-4">
+        <div class="card shadow-lg p-4">
+            <h3 class="text-center mb-3">📝 Crear Cuenta</h3>
 
-                <h3 class="text-center mb-4">📝 Crear Cuenta</h3>
+            <form method="POST">
 
-                <form method="POST">
+                <div class="mb-3">
+                    <label>Nombre</label>
+                    <input type="text" name="nombre" class="form-control" required>
+                </div>
 
-                    <div class="mb-3">
-                        <label>Nombre</label>
-                        <input type="text" name="nombre" class="form-control" required>
-                    </div>
+                <div class="mb-3">
+                    <label>Correo</label>
+                    <input type="email" name="correo" class="form-control" required>
+                </div>
 
-                    <div class="mb-3">
-                        <label>Correo</label>
-                        <input type="email" name="correo" class="form-control" required>
-                    </div>
+                <div class="mb-3">
+                    <label>Contraseña</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
 
-                    <div class="mb-3">
-                        <label>Contraseña</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
+                <div class="mb-3">
+                    <label>Tipo de cuenta</label>
+                    <select name="rol" id="rol" class="form-control" onchange="mostrarToken()" required>
+                        <option value="usuario">Usuario</option>
+                        <option value="tecnico">Técnico</option>
+                    </select>
+                </div>
 
-                    <button class="btn btn-success w-100">Registrarse</button>
+                <div id="campoToken" style="display:none;">
+                    <label>Token de acceso (solo técnicos)</label>
+                    <input type="text" name="token" class="form-control">
+                </div>
 
-                </form>
+                <button class="btn btn-success w-100 mt-3">Registrarse</button>
 
-                <hr>
+                <div class="text-center mt-3">
+                    <a href="/login">Ya tengo cuenta</a>
+                </div>
 
-                <p class="text-center">
-                    ¿Ya tienes cuenta?
-                    <a href="/login">Inicia sesión</a>
-                </p>
-
-            </div>
+            </form>
         </div>
 
     </div>
 </div>
+
+<script>
+function mostrarToken() {
+    let rol = document.getElementById("rol").value;
+    let campo = document.getElementById("campoToken");
+
+    campo.style.display = (rol === "tecnico") ? "block" : "none";
+}
+</script>
 
 {% endblock %}

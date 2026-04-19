@@ -1,30 +1,37 @@
-/* 🔹 Reset básico */
+/* 🔹 RESET */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* 🌍 BODY */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f8fb;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #eef2f3, #dfe9f3);
     color: #333;
 }
 
-/* 🔷 Contenedor */
+/* 🔷 CONTENEDOR */
 .container {
     width: 90%;
     max-width: 1200px;
     margin: auto;
 }
 
+/* 🔷 NAVBAR */
+.navbar {
+    border-bottom: 3px solid #0d6efd;
+}
+
 /* 🔷 HEADER */
 .header {
-    background-color: #0d6efd;
+    background: linear-gradient(135deg, #0d6efd, #4dabf7);
     color: white;
     padding: 15px 0;
 }
 
+/* 🔷 NAV */
 .nav {
     display: flex;
     justify-content: space-between;
@@ -36,26 +43,29 @@ body {
     margin-left: 20px;
     text-decoration: none;
     font-weight: bold;
+    transition: 0.3s;
 }
 
 .nav a:hover {
-    text-decoration: underline;
+    opacity: 0.8;
 }
 
 /* 🔵 HERO */
 .hero {
-    background: linear-gradient(to right, #0d6efd, #4dabf7);
+    background: linear-gradient(135deg, #0d6efd, #4dabf7);
     color: white;
     padding: 80px 0;
     text-align: center;
 }
 
 .hero h2 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
+    font-weight: 600;
 }
 
 .hero p {
     margin: 15px 0;
+    font-size: 1.1rem;
 }
 
 /* 🔘 BOTONES */
@@ -63,11 +73,17 @@ body {
     display: inline-block;
     padding: 12px 20px;
     margin: 10px;
-    border-radius: 5px;
+    border-radius: 10px;
     text-decoration: none;
     font-weight: bold;
+    transition: all 0.3s ease;
 }
 
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+/* BOTONES PERSONALIZADOS */
 .primary {
     background-color: white;
     color: #0d6efd;
@@ -97,15 +113,17 @@ body {
     display: flex;
     justify-content: space-around;
     margin-top: 30px;
+    flex-wrap: wrap;
 }
 
 .step {
     width: 30%;
+    min-width: 250px;
 }
 
 /* 📊 CTA */
 .cta {
-    background-color: #0d6efd;
+    background: linear-gradient(135deg, #0d6efd, #4dabf7);
     color: white;
     text-align: center;
     padding: 50px 0;
@@ -119,30 +137,93 @@ body {
     padding: 20px 0;
 }
 
+/* ========================= */
+/* 📄 FORMULARIOS */
+/* ========================= */
+
 .form-section {
     padding: 60px 0;
 }
 
 .form-container {
     background: white;
-    padding: 30px;
-    border-radius: 10px;
+    padding: 35px;
+    border-radius: 15px;
     max-width: 600px;
     margin: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: 0.3s;
 }
 
-form input, form textarea, form select {
+.form-container:hover {
+    transform: translateY(-3px);
+}
+
+form input,
+form textarea,
+form select {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 15px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid #ccc;
+    transition: 0.3s;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+    border-color: #0d6efd;
+    outline: none;
+    box-shadow: 0 0 5px rgba(13,110,253,0.3);
 }
 
 form textarea {
-    height: 100px;
+    height: 120px;
 }
+
+/* ========================= */
+/* 📦 CARDS */
+/* ========================= */
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* ========================= */
+/* 📊 TABLAS */
+/* ========================= */
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f7ff;
+    transition: 0.2s;
+}
+
+/* ========================= */
+/* 🏷️ BADGES */
+/* ========================= */
+
+.badge {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+/* ========================= */
+/* 📄 CONFIRMACIÓN */
+/* ========================= */
 
 .confirmacion-section {
     padding: 80px 0;
@@ -152,14 +233,10 @@ form textarea {
 .confirmacion-box {
     background: white;
     padding: 40px;
-    border-radius: 10px;
+    border-radius: 15px;
     max-width: 600px;
     margin: auto;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-}
-
-.reporte-id {
-    margin: 20px 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .reporte-id h3 {
@@ -167,53 +244,34 @@ form textarea {
     color: #0d6efd;
 }
 
-.importante {
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-.acciones {
-    margin-top: 30px;
-}
-
-/* ===== FORMULARIO MODERNO ===== */
-
-.form-card {
-    border-radius: 15px;
-    background: #ffffff;
-    transition: 0.3s;
-}
-
-.form-card:hover {
-    transform: scale(1.01);
-}
-
-.form-label {
-    font-weight: 600;
-}
-
-.form-control, .form-select {
-    border-radius: 10px;
-    padding: 10px;
-}
+/* ========================= */
+/* 🎯 BOTÓN ESPECIAL */
+/* ========================= */
 
 .btn-enviar {
     background: linear-gradient(135deg, #007bff, #00c6ff);
     border: none;
     border-radius: 10px;
     font-weight: bold;
-    transition: 0.3s;
+    color: white;
 }
 
 .btn-enviar:hover {
-    transform: translateY(-2px);
     box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
 }
 
-.btn {
-    transition: all 0.3s ease;
-}
+/* ========================= */
+/* 📱 RESPONSIVE */
+/* ========================= */
 
-.btn:hover {
-    transform: translateY(-2px);
+@media (max-width: 768px) {
+    .steps {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .step {
+        width: 100%;
+        margin-bottom: 20px;
+    }
 }

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">📊 Mis Reportes</h2>
+
+<a href="/reportar" class="btn btn-primary mb-3">+ Nuevo Reporte</a>
+
+<table class="table table-bordered shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Título</th>
+            <th>Dirección</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for r in reportes %}
+        <tr>
+            <td>{{ r.titulo }}</td>
+            <td>{{ r.direccion }}</td>
+            <td>{{ r.prioridad }}</td>
+            <td>
+                <span class="badge bg-info text-dark">
+                    {{ r.estado }}
+                </span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+
+{% endblock %}
