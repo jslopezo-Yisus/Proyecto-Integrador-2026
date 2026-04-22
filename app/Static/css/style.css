@@ -275,3 +275,29 @@ form textarea {
         margin-bottom: 20px;
     }
 }
+
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    letter-spacing: 0.5px;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    transition: 0.3s;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+footer {
+    font-size: 14px;
+}

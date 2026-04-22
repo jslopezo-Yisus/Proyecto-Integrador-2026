@@ -94,15 +94,21 @@ def registro():
         rol = request.form.get('rol')
         token = request.form.get('token')
 
-        # 🔥 VALIDAR SI YA EXISTE
+        # 🔍 VALIDAR SI YA EXISTE
         if Usuario.query.filter_by(correo=correo).first():
             return "El usuario ya existe"
 
-        # 🔐 VALIDAR TOKEN PARA TECNICO
+        # 🔐 VALIDAR TOKEN PARA TECNICO (DINÁMICO)
         if rol == 'tecnico':
-            if token != "123456":  # luego lo mejoramos
+            token_db = TokenTecnico.query.filter_by(token=token).first()
+
+            if not token_db:
                 return "Token inválido"
 
+            # 🔥 eliminar token después de usarlo
+            db.session.delete(token_db)
+
+        # 👤 CREAR USUARIO
         user = Usuario(
             nombre=nombre,
             correo=correo,
@@ -118,7 +124,10 @@ def registro():
         session['user_id'] = user.id
         session['rol'] = user.rol
 
-        if rol == 'tecnico':
+        # 🔄 REDIRECCIÓN SEGÚN ROL
+        if rol == 'admin':
+            return redirect('/admin')
+        elif rol == 'tecnico':
             return redirect('/tecnico')
         else:
             return redirect('/dashboard')
@@ -225,3 +234,14 @@ def generar_token():
     db.session.commit()
 
     return f"Token generado: {nuevo_token}"
+
+from flask import send_from_directory
+import os
+
+@main.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(os.getcwd(), 'app', 'Static', 'img'),
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon'
+    )
