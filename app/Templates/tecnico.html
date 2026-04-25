@@ -2,31 +2,143 @@
 
 {% block content %}
 
-<h2 class="mb-4">👷 Mis Tareas Asignadas</h2>
+<div class="container mt-4">
 
-<table class="table table-bordered shadow-sm">
-    <thead class="table-dark">
-        <tr>
-            <th>Título</th>
-            <th>Dirección</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
+    <!-- 🔷 TÍTULO -->
+    <h2 class="mb-4">👷 Panel Técnico</h2>
 
-    <tbody>
-        {% for r in reportes %}
-        <tr>
-            <td>{{ r.titulo }}</td>
-            <td>{{ r.direccion }}</td>
-            <td>
-                <span class="badge bg-warning text-dark">
-                    {{ r.estado }}
-                </span>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+    <!-- 🔔 MENSAJES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-</table>
+    <!-- 📊 TABLA -->
+    <div class="card shadow-sm p-3">
+        <h5 class="mb-3">📋 Mis Reportes Asignados</h5>
+
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Dirección</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for r in reportes %}
+                <tr>
+                    <td>{{ r.id }}</td>
+                    <td>{{ r.titulo }}</td>
+                    <td>{{ r.direccion }}</td>
+
+                    <td>
+                        {% if r.estado == 'Iniciado' %}
+                            <span class="badge bg-secondary">Iniciado</span>
+                        {% elif r.estado == 'En proceso' %}
+                            <span class="badge bg-warning text-dark">En proceso</span>
+                        {% elif r.estado == 'Resuelto' %}
+                            <span class="badge bg-success">Resuelto</span>
+                        {% else %}
+                            <span class="badge bg-info text-dark">{{ r.estado }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <!-- 🔍 VER -->
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#ver{{ r.id }}">
+                            Ver
+                        </button>
+
+                        <!-- ✏️ EDITAR -->
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editar{{ r.id }}">
+                            Editar
+                        </button>
+
+                        <!-- 🗑️ ELIMINAR -->
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#eliminar{{ r.id }}">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- ================= VER ================= -->
+                <div class="modal fade" id="ver{{ r.id }}">
+                    <div class="modal-dialog">
+                        <div class="modal-content p-3">
+                            <h5>Detalle del reporte</h5>
+                            <p><b>Título:</b> {{ r.titulo }}</p>
+                            <p><b>Descripción:</b> {{ r.descripcion }}</p>
+                            <p><b>Dirección:</b> {{ r.direccion }}</p>
+                            <p><b>Estado:</b> {{ r.estado }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= EDITAR ================= -->
+                <div class="modal fade" id="editar{{ r.id }}">
+                    <div class="modal-dialog">
+                        <div class="modal-content p-3">
+
+                            <h5>Actualizar reporte</h5>
+
+                            <form method="POST" action="/editar-tecnico/{{ r.id }}">
+
+                                <label>Estado</label>
+                                <select name="estado" class="form-select mb-2" required>
+                                    <option>Iniciado</option>
+                                    <option>En proceso</option>
+                                    <option>Resuelto</option>
+                                </select>
+
+                                <label>Descripción de solución</label>
+                                <textarea name="descripcion" class="form-control mb-2" required></textarea>
+
+                                <button class="btn btn-success w-100">
+                                    Guardar cambios
+                                </button>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= ELIMINAR ================= -->
+                <div class="modal fade" id="eliminar{{ r.id }}">
+                    <div class="modal-dialog">
+                        <div class="modal-content p-3">
+
+                            <h5>Eliminar reporte</h5>
+
+                            <form method="POST" action="/eliminar-reporte/{{ r.id }}">
+
+                                <label>Motivo de eliminación</label>
+                                <textarea name="motivo" class="form-control mb-2" required></textarea>
+
+                                <button class="btn btn-danger w-100">
+                                    Eliminar
+                                </button>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
 
 {% endblock %}

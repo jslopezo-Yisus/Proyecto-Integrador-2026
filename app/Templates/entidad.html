@@ -5,7 +5,7 @@
 <div class="container mt-4">
 
     <!-- 🔷 TÍTULO -->
-    <h2 class="mb-4">👑 Panel Administrativo</h2>
+    <h2 class="mb-4">🏢 Panel de Entidad</h2>
 
     <!-- 🔔 MENSAJES -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -18,22 +18,9 @@
         {% endif %}
     {% endwith %}
 
-    <!-- 🔐 GENERAR TOKENS -->
-    <div class="card shadow-sm p-3 mb-4">
-        <h5>🔐 Gestión de Tokens</h5>
-
-        <a href="/generar-token-tecnico" class="btn btn-dark me-2">
-            Generar Token Técnico
-        </a>
-
-        <a href="/generar-token-entidad" class="btn btn-secondary">
-            Generar Token Entidad
-        </a>
-    </div>
-
     <!-- 📊 TABLA DE REPORTES -->
     <div class="card shadow-sm p-3">
-        <h5 class="mb-3">📋 Gestión de Incidencias</h5>
+        <h5 class="mb-3">📋 Reportes asignados a tu entidad</h5>
 
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">
@@ -43,7 +30,7 @@
                     <th>Dirección</th>
                     <th>Prioridad</th>
                     <th>Estado</th>
-                    <th>Asignar Entidad</th>
+                    <th>Asignar Técnico</th>
                 </tr>
             </thead>
 
@@ -53,6 +40,7 @@
                     <td>{{ r.id }}</td>
                     <td>{{ r.titulo }}</td>
                     <td>{{ r.direccion }}</td>
+
                     <td>
                         {% if r.prioridad == 'Alta' %}
                             <span class="badge bg-danger">Alta</span>
@@ -70,15 +58,16 @@
                     </td>
 
                     <td>
-                        <form method="POST" action="/asignar-entidad/{{ r.id }}">
+                        <!-- 🔧 ASIGNAR TÉCNICO -->
+                        <form method="POST" action="/asignar-tecnico/{{ r.id }}">
                             
-                            <select name="entidad_id" class="form-select mb-2" required>
-                                <option value="">Seleccionar entidad</option>
+                            <select name="tecnico_id" class="form-select mb-2" required>
+                                <option value="">Seleccionar técnico</option>
 
-                                {% for e in entidades %}
-                                    <option value="{{ e.id }}"
-                                        {% if r.entidad_id == e.id %} selected {% endif %}>
-                                        {{ e.nombre }}
+                                {% for t in tecnicos %}
+                                    <option value="{{ t.id }}"
+                                        {% if r.tecnico_id == t.id %} selected {% endif %}>
+                                        {{ t.nombre }}
                                     </option>
                                 {% endfor %}
                             </select>

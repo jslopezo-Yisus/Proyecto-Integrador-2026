@@ -8,24 +8,45 @@
         <div class="card shadow-lg p-4">
             <h3 class="text-center mb-3">🔐 Iniciar Sesión</h3>
 
+            <!-- 🔴 MENSAJE DE ERROR -->
+            {% if error %}
+            <div class="alert alert-danger text-center">
+                {{ error }}
+            </div>
+            {% endif %}
+
             <form method="POST">
 
                 <div class="mb-3">
                     <label>Correo</label>
-                    <input type="email" name="correo" class="form-control" required>
+                    <input 
+                        type="email" 
+                        name="correo" 
+                        class="form-control {% if error %}is-invalid{% endif %}" 
+                        value="{{ request.form.correo }}"
+                        required>
                 </div>
 
                 <div class="mb-3">
                     <label>Contraseña</label>
-                    <input type="password" name="password" class="form-control" required>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        class="form-control {% if error %}is-invalid{% endif %}" 
+                        required>
                 </div>
 
                 <div class="mb-3">
                     <label>Tipo de usuario</label>
-                    <select name="rol" class="form-control" required>
-                        <option value="usuario">Usuario</option>
-                        <option value="admin">Administrador</option>
-                        <option value="tecnico">Técnico</option>
+                    <select 
+                        name="rol" 
+                        class="form-control {% if error %}is-invalid{% endif %}" 
+                        required>
+
+                        <option value="usuario" {% if request.form.rol == 'usuario' %}selected{% endif %}>Usuario</option>
+                        <option value="admin" {% if request.form.rol == 'admin' %}selected{% endif %}>Administrador</option>
+                        <option value="tecnico" {% if request.form.rol == 'tecnico' %}selected{% endif %}>Técnico</option>
+
                     </select>
                 </div>
 
