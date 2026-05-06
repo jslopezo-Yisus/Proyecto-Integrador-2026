@@ -8,7 +8,7 @@
 /* 🌍 BODY */
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(to right, #eef2f3, #dfe9f3);
+    background: linear-gradient(to right, #7ada7f, #778be6);
     color: #333;
 }
 
@@ -21,12 +21,12 @@ body {
 
 /* 🔷 NAVBAR */
 .navbar {
-    border-bottom: 3px solid #0d6efd;
+    border-bottom: 3px solid #139108;
 }
 
 /* 🔷 HEADER */
 .header {
-    background: linear-gradient(135deg, #0d6efd, #4dabf7);
+    background: linear-gradient(135deg, #139108, #ffffff);
     color: white;
     padding: 15px 0;
 }
@@ -43,7 +43,7 @@ body {
     margin-left: 20px;
     text-decoration: none;
     font-weight: bold;
-    transition: 0.3s;
+    transition: 0.3s;   
 }
 
 .nav a:hover {
@@ -52,7 +52,7 @@ body {
 
 /* 🔵 HERO */
 .hero {
-    background: linear-gradient(135deg, #0d6efd, #4dabf7);
+    background: linear-gradient(135deg, #139108, #4dabf7);
     color: white;
     padding: 80px 0;
     text-align: center;
@@ -86,7 +86,7 @@ body {
 /* BOTONES PERSONALIZADOS */
 .primary {
     background-color: white;
-    color: #0d6efd;
+    color: #139108;
 }
 
 .primary:hover {
@@ -123,7 +123,7 @@ body {
 
 /* 📊 CTA */
 .cta {
-    background: linear-gradient(135deg, #0d6efd, #4dabf7);
+    background: linear-gradient(135deg, #87f17d, #7596dd);
     color: white;
     text-align: center;
     padding: 50px 0;
@@ -173,7 +173,7 @@ form select {
 form input:focus,
 form textarea:focus,
 form select:focus {
-    border-color: #0d6efd;
+    border-color: #139108;
     outline: none;
     box-shadow: 0 0 5px rgba(13,110,253,0.3);
 }
@@ -202,7 +202,7 @@ form textarea {
 }
 
 .table thead {
-    background-color: #0d6efd;
+    background-color: #139108;
     color: white;
 }
 
@@ -241,7 +241,7 @@ form textarea {
 
 .reporte-id h3 {
     font-size: 2rem;
-    color: #0d6efd;
+    color: #139108;
 }
 
 /* ========================= */
@@ -249,7 +249,7 @@ form textarea {
 /* ========================= */
 
 .btn-enviar {
-    background: linear-gradient(135deg, #007bff, #00c6ff);
+    background: linear-gradient(135deg, #139108, #00c6ff);
     border: none;
     border-radius: 10px;
     font-weight: bold;
@@ -300,4 +300,65 @@ body {
 
 footer {
     font-size: 14px;
+}
+
+/* 📞 CONTACTO ENTIDADES */
+section h2 {
+    letter-spacing: 0.5px;
+}
+
+.card p {
+    font-size: 0.95rem;
+}
+
+/* 🏡 SECCIÓN CON MARCA DE AGUA */
+.seccion-fondo {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Imagen de fondo tipo marca de agua */
+.seccion-fondo::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+
+    background-image: url("/static/img/family.jpg");
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    opacity: 0.70; 
+
+    z-index: 0;
+}
+
+/* Contenido encima del fondo */
+.seccion-fondo .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* 🚨 TARJETAS EMERGENCIA */
+.emergency-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    transition: 0.2s;
+}
+
+.emergency-card h5 {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.emergency-card:hover {
+    background: #ffe5e5;
+    transform: translateY(-3px);
 }

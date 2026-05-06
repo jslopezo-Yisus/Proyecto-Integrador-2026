@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>🏠 HomeFix</title>
+    <title>HomeFix</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,23 +17,29 @@
 <body class="bg-light">
 
 <!-- 🔷 NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">🏠 HomeFix</a>
+        
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" 
+                 alt="HomeFix Logo" 
+                 style="height:40px; margin-right:10px;">
+            HomeFix
+        </a>
 
         <div>
             <a href="/reportar" class="btn btn-light btn-sm me-2">Reportar</a>
-            <a href="/reportes" class="btn btn-outline-light btn-sm me-2">Incidencias</a>
+
             <a href="/login" class="btn btn-dark btn-sm">Login</a>
         </div>
     </div>
 </nav>
 
 <!-- 🔵 HERO -->
-<section class="py-5 bg-white border-bottom">
+ <section class="py-5 bg-white border-bottom">
     <div class="container text-center">
 
-        <h1 class="fw-bold text-primary mb-3">
+        <h1 class="fw-bold text-success mb-3">
             Gestión de incidencias del hogar
         </h1>
 
@@ -39,19 +48,18 @@
         </p>
 
         <div>
-            <a href="/reportar" class="btn btn-primary me-2 px-4">
+            <a href="/reportar" class="btn btn-success me-2 px-4">
                 Reportar incidencia
             </a>
-            <a href="/reportes" class="btn btn-outline-primary px-4">
-                Ver incidencias
-            </a>
+            
         </div>
 
     </div>
 </section>
+</section>
 
 <!-- ⚙️ CÓMO FUNCIONA -->
-<section class="py-5">
+<section class="py-5 seccion-fondo">
     <div class="container">
 
         <h2 class="text-center fw-bold mb-5">¿Cómo funciona?</h2>
@@ -60,21 +68,21 @@
 
             <div class="col-md-4 mb-4">
                 <div class="card border-0 shadow-sm p-4 h-100">
-                    <h4 class="text-primary">1. Reporta</h4>
+                    <h4 class="text-success">1. Reporta</h4>
                     <p class="text-muted">Describe la incidencia de forma rápida y sencilla.</p>
                 </div>
             </div>
 
             <div class="col-md-4 mb-4">
                 <div class="card border-0 shadow-sm p-4 h-100">
-                    <h4 class="text-primary">2. Obtén tu ID</h4>
+                    <h4 class="text-success">2. Obtén tu ID</h4>
                     <p class="text-muted">Recibe un código único para seguimiento.</p>
                 </div>
             </div>
 
             <div class="col-md-4 mb-4">
                 <div class="card border-0 shadow-sm p-4 h-100">
-                    <h4 class="text-primary">3. Haz seguimiento</h4>
+                    <h4 class="text-success">3. Haz seguimiento</h4>
                     <p class="text-muted">Consulta el estado en cualquier momento.</p>
                 </div>
             </div>
@@ -84,8 +92,99 @@
     </div>
 </section>
 
+<!-- 🚨 PANEL DE EMERGENCIAS -->
+<section class="py-5">
+    <div class="container">
+
+        <div class="card shadow border-0">
+            <div class="card-header bg-danger text-white text-center">
+                <h4 class="mb-0">🚨 Números de Emergencia</h4>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row text-center">
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>119</h5>
+                            <small>Bomberos</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>144</h5>
+                            <small>Defensa Civil</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>132</h5>
+                            <small>Cruz Roja</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>125</h5>
+                            <small>Emergencias Médicas</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>123</h5>
+                            <small>Policía Nacional</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>127</h5>
+                            <small>Policía de tránsito</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>136</h5>
+                            <small>Centro Toxicológico</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>164</h5>
+                            <small>Gas Natural</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>116</h5>
+                            <small>Acueducto</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="emergency-card">
+                            <h5>115</h5>
+                            <small>Codensa</small>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
 <!-- 📊 CTA -->
-<section class="py-5 bg-primary text-white text-center">
+<section class="py-5 bg-success text-white text-center">
     <div class="container">
 
         <h2 class="fw-bold mb-3">Gestiona tus reportes fácilmente</h2>
@@ -94,6 +193,51 @@
         <a href="/registro" class="btn btn-light px-4">
             Crear cuenta
         </a>
+
+    </div>
+</section>
+
+<!-- 📞 CONTACTO PARA ENTIDADES -->
+<section class="py-5 bg-white border-top">
+    <div class="container">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-6 mb-4">
+                <h2 class="fw-bold text-success mb-3">
+                    🤝 ¿Eres una entidad?
+                </h2>
+
+                <p class="text-muted">
+                    Si deseas formar parte de HomeFix como entidad aliada y gestionar incidencias,
+                    puedes ponerte en contacto con nosotros para recibir acceso a la plataforma.
+                </p>
+
+                <p class="mb-1"><strong>📧 Correo:</strong> contacto@homefix.com</p>
+                <p class="mb-1"><strong>📞 Teléfono:</strong> +57 300 123 4567</p>
+                <p class="mb-1"><strong>📍 Ubicación:</strong> Bogotá, Colombia</p>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow border-0 p-4 text-center">
+
+                    <h5 class="mb-3">Acceso para entidades</h5>
+
+                    <p class="text-muted">
+                        Nuestro equipo validará tu solicitud y te proporcionará un token de acceso
+                        para registrar tu entidad en el sistema.
+                    </p>
+
+                    <div class="mt-3">
+                        <span class="badge bg-success p-2">
+                            Registro mediante token seguro 🔐
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
 
     </div>
 </section>

@@ -269,6 +269,31 @@ def dashboard():
 
     return render_template('dashboard.html', reportes=reportes)
 
+# =========================
+# 📋 VER REPORTES (GENERAL)
+# =========================
+@main.route('/reportes')
+def ver_reportes():
+
+    # 🔒 Si no está logueado → lo mando al inicio
+    if 'user_id' not in session:
+        return redirect('/')
+
+    # 🎭 FILTRO POR ROL
+    if session['rol'] == 'usuario':
+        reportes = Reporte.query.filter_by(user_id=session['user_id']).all()
+
+    elif session['rol'] == 'tecnico':
+        reportes = Reporte.query.filter_by(tecnico_id=session['user_id']).all()
+
+    elif session['rol'] == 'entidad':
+        user = Usuario.query.get(session['user_id'])
+        reportes = Reporte.query.filter_by(entidad_id=user.entidad_id).all()
+
+    else:  # admin
+        reportes = Reporte.query.all()
+
+    return render_template('reportes.html', reportes=reportes)
 
 # =========================
 # 📄 CREAR REPORTE
