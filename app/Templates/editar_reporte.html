@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div>
+
+    <h2 class="mb-4">Editar Reporte</h2>
+    <form method="POST">
+
+        <div class="mb-3">
+            <label>Titulo</label>
+            <input type="text" name="Titulo" class="form-control" value="{{reporte.titulo}}" required>
+        </div>
+        <div class="mb-3">
+            <label>Descripción</label>
+            <textarea name="descripcion" class="form-control" required>{{reporte.descripcion}}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Dirección</label>
+            <input type="text" name="direccion" class="form-control" value="{{reporte.direccion}}" required>
+        </div>
+
+        <div class="mb-3">
+    <label>Prioridad</label>
+
+    <select name="prioridad" class="form-control">
+
+        <option value="baja"
+        {% if reporte.prioridad == 'baja' %}
+            selected
+        {% endif %}>
+            Baja
+        </option>
+
+        <option value="media"
+        {% if reporte.prioridad == 'media' %}
+            selected
+        {% endif %}>
+            Media
+        </option>
+
+        <option value="alta"
+        {% if reporte.prioridad == 'alta' %}
+            selected
+        {% endif %}>
+            Alta
+        </option>
+
+    </select>
+</div>
+
+        <button class="btn btn-primary">
+            Guardar Cambios
+        </button>
+
+        <a href="/reportes" class="btn btn-secondary">
+            Cancelar
+        </a>
+    </form>
+</div>
+{% endblock %}

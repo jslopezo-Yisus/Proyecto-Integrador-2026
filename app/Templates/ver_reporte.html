@@ -1,0 +1,22 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<div class="card shadow p-4">
+
+    <h2 class="mb-4">Detalle de Reporte</h2>
+    <p><strong>Titulo: </strong>{{reporte.titulo}}</p>
+    <p><strong>Descripción: </strong>{{reporte.descripcion}}</p>
+    <p><strong>Dirección: </strong>{{reporte.direccion}}</p>
+    <p><strong>Prioridad: </strong>{{reporte.prioridad}}</p>
+    <p><strong>Estado: </strong>{{reporte.estado}}</p>
+
+    {% if reporte.imagen %}
+    <img src="{{url_for('static', filename='img/uploads/'+reporte.imagen)}}" class="img-fluid rounded shadow">
+    {% endif %}
+
+    <a href="/reportes" class="btn btn-secondary mt-3">
+        Volver
+    </a>
+</div>
+
+{% endblock %}

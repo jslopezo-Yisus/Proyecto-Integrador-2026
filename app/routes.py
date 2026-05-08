@@ -1,24 +1,27 @@
 from flask import Blueprint, render_template, request, redirect, session, flash
 from .models import Reporte, Usuario, TokenTecnico, TokenEntidad, Entidad
-from . import db
-
-
+from .import db
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from flask import send_file
+import io
 import uuid
 
 
 main = Blueprint('main', __name__)
 
-# =========================
+
 # 🏠 INDEX
-# =========================
+
 @main.route('/')
 def index():
     return render_template('index.html')
 
 
-# =========================
+
 # 🔐 LOGIN
-# =========================
+
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -47,9 +50,9 @@ def login():
     return render_template('login.html')
 
 
-# =========================
+
 # 📝 REGISTRO
-# =========================
+
 @main.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
@@ -66,9 +69,9 @@ def registro():
             flash('El correo ya está registrado', 'danger')
             return redirect('/registro')
 
-        # =========================
+        
         # 🔐 TECNICO
-        # =========================
+        
         if rol == 'tecnico':
             token_db = TokenTecnico.query.filter_by(token=token, usado=False).first()
 
@@ -91,9 +94,9 @@ def registro():
 
             token_db.usado = True
 
-        # =========================
+        
         # 🏢 ENTIDAD
-        # =========================
+        
         elif rol == 'entidad':
             token_db = TokenEntidad.query.filter_by(token=token, usado=False).first()
 
@@ -115,9 +118,9 @@ def registro():
 
             token_db.usado = True
 
-        # =========================
+    
         # 👤 USUARIO NORMAL
-        # =========================
+        
         else:
             user = Usuario(
                 nombre=nombre,
@@ -139,9 +142,9 @@ def registro():
     return render_template('registro.html')
 
 
-# =========================
+
 # 📊 ADMIN
-# =========================
+
 @main.route('/admin')
 def admin():
     if session.get('rol') != 'admin':
@@ -153,9 +156,9 @@ def admin():
     return render_template('admin.html', reportes=reportes, entidades=entidades)
 
 
-# =========================
+
 # 🔐 GENERAR TOKEN TECNICO
-# =========================
+
 @main.route('/generar-token-tecnico')
 def generar_token_tecnico():
     if session.get('rol') != 'admin':
@@ -171,9 +174,9 @@ def generar_token_tecnico():
     return redirect('/admin')
 
 
-# =========================
+
 # 🔐 GENERAR TOKEN ENTIDAD
-# =========================
+
 @main.route('/generar-token-entidad')
 def generar_token_entidad():
     if session.get('rol') != 'admin':
@@ -189,33 +192,33 @@ def generar_token_entidad():
     return redirect('/admin')
 
 
-# =========================
+
 # 🏢 PANEL ENTIDAD
-# =========================
+
 @main.route('/entidad')
 def entidad():
     if session.get('rol') != 'entidad':
         return redirect('/login')
 
-    # 👤 Usuario actual
+    #  Usuario actual
     user_id = session.get('user_id')
     usuario = Usuario.query.get(user_id)
 
-    # 🏢 Entidad del usuario
+    #  Entidad del usuario
     entidad_id = usuario.entidad_id
 
-    # 📊 Reportes SOLO de esa entidad
+    #  Reportes SOLO de esa entidad
     reportes = Reporte.query.filter_by(entidad_id=entidad_id).all()
 
-    # 👷 Técnicos SOLO de esa entidad
+    #  Técnicos SOLO de esa entidad
     tecnicos = Usuario.query.filter_by(rol='tecnico', entidad_id=entidad_id).all()
 
     return render_template('entidad.html', reportes=reportes, tecnicos=tecnicos)
 
 
-# =========================
-# 👷 PANEL TECNICO
-# =========================
+
+# PANEL TECNICO
+
 @main.route('/tecnico')
 def tecnico():
 
@@ -257,9 +260,9 @@ def eliminar_reporte(id):
     return redirect('/tecnico')
 
 
-# =========================
+
 # 👤 DASHBOARD USUARIO
-# =========================
+
 @main.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
@@ -269,9 +272,9 @@ def dashboard():
 
     return render_template('dashboard.html', reportes=reportes)
 
-# =========================
+
 # 📋 VER REPORTES (GENERAL)
-# =========================
+
 @main.route('/reportes')
 def ver_reportes():
 
@@ -295,9 +298,9 @@ def ver_reportes():
 
     return render_template('reportes.html', reportes=reportes)
 
-# =========================
+
 # 📄 CREAR REPORTE
-# =========================
+
 @main.route('/reportar', methods=['GET', 'POST'])
 def reportar():
     if request.method == 'POST':
@@ -318,9 +321,9 @@ def reportar():
     return render_template('reportar.html')
 
 
-# =========================
-# 🧠 ASIGNAR ENTIDAD (ADMIN)
-# =========================
+
+#  ASIGNAR ENTIDAD (ADMIN)
+
 @main.route('/asignar-entidad/<int:id>', methods=['POST'])
 def asignar_entidad(id):
     if session.get('rol') != 'admin':
@@ -337,9 +340,9 @@ def asignar_entidad(id):
     return redirect('/admin')
 
 
-# =========================
+
 # 🧠 ASIGNAR TECNICO (ENTIDAD)
-# =========================
+
 @main.route('/asignar-tecnico/<int:id>', methods=['POST'])
 def asignar_tecnico(id):
     if session.get('rol') != 'entidad':
@@ -354,11 +357,97 @@ def asignar_tecnico(id):
 
     return redirect('/entidad')
 
+# Ver reporte
 
-# =========================
+@main.route('/ver-reporte/<int:id>')
+def ver_reporte(id):
+
+    if 'user_id' not in session:
+        return redirect('/login')
+    reporte = Reporte.query.get_or_404(id)
+    return render_template('ver_reporte.html', reporte=reporte)
+
+# Editar Reporte
+
+@main.route('/editar-reporte/<int:id>', methods=['GET','POST'])
+def editar_reporte(id):
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    reporte = Reporte.query.get_or_404(id)
+
+    if request.method == 'POST':
+
+        reporte.titulo = request.form.get('titulo')
+        reporte.descripcion = request.form.get('descripcion')
+        reporte.direccion = request.form.get('direccion')
+        reporte.prioridad = request.form.get('prioridad')
+
+        db.session.commit()
+        flash('Reporte actualizado correctamente','success')
+        return redirect('/reportes')
+    return render_template('editar_reporte.html', reporte=reporte)
+
+# Eliminar Reporte
+
+@main.route('/eliminar-reporte-usuario/<int:id>', methods=['POST'])
+def eliminar_reporte_usuario(id):
+
+    if 'user_id' not in session:
+        return redirect('/login')
+    reporte = reporte.query.get_or_404(id)
+
+    db.session.delete(reporte)
+    db.session.commit()
+
+    flash('Reporte eliminado correctamente','danger')
+
+    return redirect('/reportes')
+
+# Lista Reportes
+
+@main.route('/reportes')
+def reportes():
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    reportes = Reporte.query.filter_by(user_id = session['user_id']).all()
+    return render_template('reporte.html',reportes=reportes)
+
 # 🔓 LOGOUT
-# =========================
+
 @main.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
+
+@main.route('/reporte/pdf/<int:id>')
+def generar_pdf(id):
+    if 'user_id' not in session:
+        return redirect('/login')
+        reporte = Reporte.query.get_or_404(id)
+
+        buffer = io.BytesIO()
+
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+
+        contenido=[]
+
+        contenido.append(Paragraph("Reporte HomeFix", styles['Title']))
+        contenido.append(Spacer(1, 10))
+
+        contenido.append(Paragraph(f"Titulo: {reporte.titulo}", styles['Normal']))
+        contenido.append(Paragraph(f"Descripción: {reporte.descripcion}", styles['Normal']))
+        contenido.append(Paragraph(f"Dirección: {reporte.direccion}", styles['Normal']))
+        contenido.append(Paragraph(f"Prioridad: {reporte.prioridad}", styles['Normal']))
+        contenido.append(Paragraph(f"Estado: {reporte.estado}", styles['Normal']))
+
+        if reporte.motivo_eliminacion:
+            contenido.append(Paragraph(f"Motivo eliminación: {reporte.motivo_eliminacion}", styles['normal']))
+
+            doc.build(contenido)
+            buffer.seek(0)
+
+            return send_file(buffer, as_attachment = True, download_name=f"reporte_{id}.pdf", mimetype='application/pdf')

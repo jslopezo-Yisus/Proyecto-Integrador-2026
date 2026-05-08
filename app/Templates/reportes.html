@@ -2,53 +2,59 @@
 
 {% block content %}
 
-<div class="container mt-4">
+<h2 class="mb-4">Lista de Reportes</h2>
 
-    <h2>📋 Lista de Reportes</h2>
+<table class="table table-bordered shadow-sm bg-white">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Dirección</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Imagen</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
 
-    <table class="table table-bordered table-hover mt-3">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Dirección</th>
-                <th>Tipo</th>
-                <th>Prioridad</th>
-                <th>Estado</th>
-                <th>Imagen</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
+     <tbody>
+        {% for r in reportes %}
+        <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.titulo }}</td>
+            <td>{{ r.direccion }}</td>
+            <td>{{ r.prioridad }}</td>
+            <td>{{ r.estado }}</td>
 
-        <tbody>
-            {% for r in reportes %}
-            <tr>
-                <td>{{ r.id }}</td>
-                <td>{{ r.nombre }}</td>
-                <td>{{ r.direccion }}</td>
-                <td>{{ r.tipo_dano }}</td>
-                <td>{{ r.prioridad }}</td>
-                <td>{{ r.estado }}</td>
-
-                <td>
-                    {% if r.imagen %}
-                        <img src="{{ url_for('static', filename='img/' + r.imagen) }}" width="80">
+            <td>
+                 {% if r.imagen %}
+                       <img src="{{ url_for('static', filename='img/uploads/'+r.imagen)}}" width="80">
                     {% else %}
                         Sin imagen
                     {% endif %}
-                </td>
+            </td>
 
-                <td>
-                    <a href="/detalle/{{ r.id }}" class="btn btn-info btn-sm">Ver</a>
-                    <a href="/editar/{{ r.id }}" class="btn btn-warning btn-sm">Editar</a>
-                    <a href="/eliminar/{{ r.id }}" class="btn btn-danger btn-sm">Eliminar</a>
-                </td>
-            </tr>
+            <td>
+                <!--Ver-->
+                <a href="/ver-reporte/{{r.id}}" class="btn btn-info btn-sm">
+                  Ver  
+                </a>
+
+                <!--Editar-->
+                <a href="/editar-reporte/{{r.id}}" class="btn btn-warning btn-sm">
+                  Editar  
+                </a>
+
+                <!--Eliminar-->
+                <form action="/eliminar-reporte-usuario/{{r.id}}" method="POST" style="display:inline;">
+                    <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar reporte?')">
+                        Eliminar
+                    </button>
+                </form>
+            </td>
+        </tr>
             {% endfor %}
-        </tbody>
+    </tbody>
 
-    </table>
-
-</div>
-
+</table>
 {% endblock %}

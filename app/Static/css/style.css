@@ -8,7 +8,7 @@
 /* 🌍 BODY */
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(to right, #7ada7f, #778be6);
+    background: linear-gradient(to right, #b0dfb2, #9daceb);
     color: #333;
 }
 
@@ -249,7 +249,7 @@ form textarea {
 /* ========================= */
 
 .btn-enviar {
-    background: linear-gradient(135deg, #139108, #00c6ff);
+    background: linear-gradient(135deg, #107907, #107907);
     border: none;
     border-radius: 10px;
     font-weight: bold;
