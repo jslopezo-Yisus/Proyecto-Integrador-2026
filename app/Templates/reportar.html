@@ -2,68 +2,254 @@
 
 {% block content %}
 
+<!-- 🌍 LEAFLET CSS -->
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
 <div class="container mt-5">
 
     <div class="card shadow-lg p-4 form-card">
 
-        <h2 class="text-center mb-3">🚨 Reportar Incidencia</h2>
+        <h2 class="text-center mb-3">
+            🚨 Reportar Incidencia
+        </h2>
+
         <p class="text-center text-muted mb-4">
             Completa la información para registrar el problema
         </p>
 
         <form method="POST" enctype="multipart/form-data">
 
+            <!-- 📌 CAMPOS OCULTOS GPS -->
+            <input type="hidden" name="latitud" id="latitud">
+            <input type="hidden" name="longitud" id="longitud">
+
+            <!-- 📝 TITULO -->
             <div class="mb-3">
-                <label class="form-label">Título del problema</label>
-                <input type="text" name="titulo" class="form-control" placeholder="Ej: Fuga de agua en cocina" required>
+
+                <label class="form-label">
+                    Título del problema
+                </label>
+
+                <input type="text"
+                       name="titulo"
+                       class="form-control"
+                       placeholder="Ej: Fuga de agua en cocina"
+                       required>
+
             </div>
 
+            <!-- 📄 DESCRIPCION -->
             <div class="mb-3">
-                <label class="form-label">Descripción</label>
-                <textarea name="descripcion" class="form-control" rows="4" placeholder="Describe la incidencia..." required></textarea>
+
+                <label class="form-label">
+                    Descripción
+                </label>
+
+                <textarea name="descripcion"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Describe la incidencia..."
+                          required></textarea>
+
             </div>
 
+            <!-- 📍 DIRECCION -->
             <div class="mb-3">
-                <label class="form-label">Dirección</label>
-                <input type="text" name="direccion" class="form-control" placeholder="Dirección completa" required>
+
+                <label class="form-label">
+                    Dirección
+                </label>
+
+                <input type="text"
+                       name="direccion"
+                       class="form-control"
+                       placeholder="Dirección completa"
+                       required>
+
             </div>
 
+            <!-- 🧩 TIPO Y PRIORIDAD -->
             <div class="row">
+
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Tipo de daño</label>
-                    <select name="tipo_dano" class="form-select" required>
+
+                    <label class="form-label">
+                        Tipo de daño
+                    </label>
+
+                    <select name="tipo_dano"
+                            class="form-select"
+                            required>
+
                         <option value="">Selecciona</option>
-                        <option value="eléctrico">Eléctrico</option>
-                        <option value="plomería">Plomería</option>
-                        <option value="estructura">Estructura</option>
+
+                        <option value="eléctrico">
+                            Eléctrico
+                        </option>
+
+                        <option value="plomería">
+                            Plomería
+                        </option>
+
+                        <option value="estructura">
+                            Estructura
+                        </option>
+
                     </select>
+
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Prioridad</label>
-                    <select name="prioridad" class="form-select" required>
+
+                    <label class="form-label">
+                        Prioridad
+                    </label>
+
+                    <select name="prioridad"
+                            class="form-select"
+                            required>
+
                         <option value="">Selecciona</option>
-                        <option value="baja">Baja</option>
-                        <option value="media">Media</option>
-                        <option value="alta">Alta</option>
+
+                        <option value="baja">
+                            Baja
+                        </option>
+
+                        <option value="media">
+                            Media
+                        </option>
+
+                        <option value="alta">
+                            Alta
+                        </option>
+
                     </select>
+
                 </div>
+
             </div>
 
+            <!-- 📸 IMAGEN -->
             <div class="mb-3">
-                <label class="form-label">Adjuntar imagen</label>
-                <input type="file" name="imagen" class="form-control" accept="image/*">
+
+                <label class="form-label">
+                    Adjuntar imagen
+                </label>
+
+                <input type="file"
+                       name="imagen"
+                       class="form-control"
+                       accept="image/*">
+
             </div>
 
+            <!-- 🗺️ MAPA -->
+            <div class="mb-4">
+
+                <label class="form-label">
+                    Ubicación del incidente
+                </label>
+
+                <div id="mapa"
+                     style="height:400px;
+                            border-radius:12px;
+                            overflow:hidden;">
+                </div>
+
+                <small class="text-muted">
+                    📍 Puedes permitir ubicación automática o seleccionar manualmente en el mapa.
+                </small>
+
+            </div>
+
+            <!-- 🚀 BOTON -->
             <div class="text-center">
-                <button type="submit" class="btn btn-success btn-lg w-100 btn-enviar">
+
+                <button type="submit"
+                        class="btn btn-success btn-lg w-100 btn-enviar">
+
                     🚀 Enviar Reporte
+
                 </button>
+
             </div>
 
         </form>
 
     </div>
+
 </div>
+
+<!-- 🌍 LEAFLET JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+    // 📍 Coordenadas iniciales Bogotá
+    var latInicial = 4.60971;
+    var lngInicial = -74.08175;
+
+    // 🗺️ Crear mapa
+    var mapa = L.map('mapa').setView(
+        [latInicial, lngInicial],
+        13
+    );
+
+    // 🌎 Capa del mapa
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: 'OpenStreetMap'
+        }
+    ).addTo(mapa);
+
+    // 📌 Marcador
+    var marcador;
+
+    // 📍 Intentar obtener ubicación automática
+    navigator.geolocation.getCurrentPosition(function(posicion){
+
+        var lat = posicion.coords.latitude;
+        var lng = posicion.coords.longitude;
+
+        mapa.setView([lat, lng], 15);
+
+        marcador = L.marker([lat, lng])
+            .addTo(mapa)
+            .bindPopup("Tu ubicación")
+            .openPopup();
+
+        document.getElementById("latitud").value = lat;
+        document.getElementById("longitud").value = lng;
+
+    });
+
+    // 🖱️ Selección manual
+    mapa.on('click', function(e){
+
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        if(marcador){
+            mapa.removeLayer(marcador);
+        }
+
+        marcador = L.marker([lat, lng])
+            .addTo(mapa)
+            .bindPopup("Ubicación seleccionada")
+            .openPopup();
+
+        document.getElementById("latitud").value = lat;
+        document.getElementById("longitud").value = lng;
+
+    });
+
+    // 🔧 Solución mapa gris
+    setTimeout(() => {
+        mapa.invalidateSize();
+    }, 500);
+
+</script>
 
 {% endblock %}

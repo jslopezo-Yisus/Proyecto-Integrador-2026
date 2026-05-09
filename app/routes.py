@@ -1,10 +1,14 @@
 from flask import Blueprint, render_template, request, redirect, session, flash
-from .models import Reporte, Usuario, TokenTecnico, TokenEntidad, Entidad
-from .import db
+from . models import Reporte, Usuario, TokenTecnico, TokenEntidad, Entidad
+from . import db
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from flask import send_file
+from . models import HistorialReporte
+from flask import make_response
+from reportlab.pdfgen import canvas
+from io import BytesIO
 import io
 import uuid
 
@@ -256,6 +260,15 @@ def eliminar_reporte(id):
     db.session.delete(reporte)
     db.session.commit()
 
+    historial = HistorialReporte(
+            reporte_id = reporte.id,
+            accion = 'Reporte eliminado',
+            descripcion = f'Motivo: {motivo}'
+        )
+    
+    db.session.add(historial)
+    db.session.commit()
+
     flash('Reporte eliminado correctamente', 'warning')
     return redirect('/tecnico')
 
@@ -310,10 +323,20 @@ def reportar():
             descripcion=request.form['descripcion'],
             direccion=request.form['direccion'],
             prioridad=request.form['prioridad'],
+            latitud=request.form.get('latitud'),
+            longitud=request.form.get('longitud'),
             user_id=session.get('user_id')
         )
 
         db.session.add(nuevo)
+        db.session.commit()
+
+        historial = HistorialReporte(
+            reporte_id = nuevo.id,
+            accion = 'Reporte Creado',
+            descripcion = 'El ususario creó el reporte'
+        )
+        db.session.add(historial)
         db.session.commit()
 
         return redirect('/dashboard')
@@ -337,6 +360,15 @@ def asignar_entidad(id):
 
     db.session.commit()
 
+    historial = HistorialReporte(
+            reporte_id = reporte.id,
+            accion = 'Entidad asignada',
+            descripcion = 'El administrador asignó una entidad'
+        )
+    
+    db.session.add(historial)
+    db.session.commit()
+
     return redirect('/admin')
 
 
@@ -353,6 +385,15 @@ def asignar_tecnico(id):
 
     reporte.tecnico_id = tecnico_id
     reporte.estado = "Asignado a técnico"
+    db.session.commit()
+
+    historial = HistorialReporte(
+            reporte_id = reporte.id,
+            accion = 'Tecnico asignado',
+            descripcion = 'La entidad asignó un técnico'
+        )
+    
+    db.session.add(historial)
     db.session.commit()
 
     return redirect('/entidad')
@@ -384,6 +425,17 @@ def editar_reporte(id):
         reporte.prioridad = request.form.get('prioridad')
 
         db.session.commit()
+
+        historial = HistorialReporte(
+            reporte_id = reporte.id,
+            accion = 'Reporte editado',
+            descripcion = 'Se modifico la información del reporte'
+        )
+
+        db.session.add(historial)
+        db.session.commit()
+
+
         flash('Reporte actualizado correctamente','success')
         return redirect('/reportes')
     return render_template('editar_reporte.html', reporte=reporte)
@@ -424,30 +476,106 @@ def logout():
 
 @main.route('/reporte/pdf/<int:id>')
 def generar_pdf(id):
+
     if 'user_id' not in session:
         return redirect('/login')
-        reporte = Reporte.query.get_or_404(id)
 
-        buffer = io.BytesIO()
+    reporte = Reporte.query.get_or_404(id)
 
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
-        styles = getSampleStyleSheet()
+    historial = HistorialReporte.query.filter_by(
+        reporte_id=id
+    ).all()
 
-        contenido=[]
+    buffer = io.BytesIO()
 
-        contenido.append(Paragraph("Reporte HomeFix", styles['Title']))
-        contenido.append(Spacer(1, 10))
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter
+    )
 
-        contenido.append(Paragraph(f"Titulo: {reporte.titulo}", styles['Normal']))
-        contenido.append(Paragraph(f"Descripción: {reporte.descripcion}", styles['Normal']))
-        contenido.append(Paragraph(f"Dirección: {reporte.direccion}", styles['Normal']))
-        contenido.append(Paragraph(f"Prioridad: {reporte.prioridad}", styles['Normal']))
-        contenido.append(Paragraph(f"Estado: {reporte.estado}", styles['Normal']))
+    styles = getSampleStyleSheet()
 
-        if reporte.motivo_eliminacion:
-            contenido.append(Paragraph(f"Motivo eliminación: {reporte.motivo_eliminacion}", styles['normal']))
+    contenido = []
 
-            doc.build(contenido)
-            buffer.seek(0)
+    # =========================
+    # TITULO
+    # =========================
+    contenido.append(
+        Paragraph("Reporte HomeFix", styles['Title'])
+    )
 
-            return send_file(buffer, as_attachment = True, download_name=f"reporte_{id}.pdf", mimetype='application/pdf')
+    contenido.append(Spacer(1, 20))
+
+    # =========================
+    # DATOS DEL REPORTE
+    # =========================
+    contenido.append(
+        Paragraph(f"<b>Título:</b> {reporte.titulo}", styles['Normal'])
+    )
+
+    contenido.append(
+        Paragraph(f"<b>Descripción:</b> {reporte.descripcion}", styles['Normal'])
+    )
+
+    contenido.append(
+        Paragraph(f"<b>Dirección:</b> {reporte.direccion}", styles['Normal'])
+    )
+
+    contenido.append(
+        Paragraph(f"<b>Prioridad:</b> {reporte.prioridad}", styles['Normal'])
+    )
+
+    contenido.append(
+        Paragraph(f"<b>Estado:</b> {reporte.estado}", styles['Normal'])
+    )
+
+    contenido.append(Spacer(1, 20))
+
+    # =========================
+    # HISTORIAL
+    # =========================
+    contenido.append(
+        Paragraph("Historial del Reporte", styles['Heading2'])
+    )
+
+    contenido.append(Spacer(1, 10))
+
+    for item in historial:
+
+        texto = f"""
+        <b>Fecha:</b> {item.fecha}<br/>
+        <b>Acción:</b> {item.accion}<br/>
+        <b>Detalle:</b> {item.descripcion}
+        """
+
+        contenido.append(
+            Paragraph(texto, styles['Normal'])
+        )
+
+        contenido.append(Spacer(1, 12))
+
+    # =========================
+    # MOTIVO ELIMINACION
+    # =========================
+    if reporte.motivo_eliminacion:
+
+        contenido.append(
+            Paragraph(
+                f"<b>Motivo eliminación:</b> {reporte.motivo_eliminacion}",
+                styles['Normal']
+            )
+        )
+
+    # =========================
+    # CREAR PDF
+    # =========================
+    doc.build(contenido)
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=f"reporte_{id}.pdf",
+        mimetype='application/pdf'
+    )

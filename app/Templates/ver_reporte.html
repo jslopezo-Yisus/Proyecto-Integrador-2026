@@ -1,22 +1,270 @@
-{% extends 'base.html'%}
+{% extends 'base.html' %}
+
 {% block content %}
 
-<div class="card shadow p-4">
+<!-- 🌍 LEAFLET CSS -->
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
-    <h2 class="mb-4">Detalle de Reporte</h2>
-    <p><strong>Titulo: </strong>{{reporte.titulo}}</p>
-    <p><strong>Descripción: </strong>{{reporte.descripcion}}</p>
-    <p><strong>Dirección: </strong>{{reporte.direccion}}</p>
-    <p><strong>Prioridad: </strong>{{reporte.prioridad}}</p>
-    <p><strong>Estado: </strong>{{reporte.estado}}</p>
+<div class="container mt-5">
 
-    {% if reporte.imagen %}
-    <img src="{{url_for('static', filename='img/uploads/'+reporte.imagen)}}" class="img-fluid rounded shadow">
-    {% endif %}
+    <div class="card shadow-lg border-0 p-4">
 
-    <a href="/reportes" class="btn btn-secondary mt-3">
-        Volver
-    </a>
+        <!-- 📋 TITULO -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h2 class="text-primary fw-bold">
+                📋 Detalle del Reporte
+            </h2>
+
+            <span class="badge bg-primary p-2">
+                ID #{{ reporte.id }}
+            </span>
+
+        </div>
+
+        <hr>
+
+        <!-- 📄 INFORMACION -->
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <p>
+                    <strong>📝 Título:</strong><br>
+                    {{ reporte.titulo }}
+                </p>
+
+                <p>
+                    <strong>📍 Dirección:</strong><br>
+                    {{ reporte.direccion }}
+                </p>
+
+                <p>
+                    <strong>⚡ Prioridad:</strong><br>
+
+                    {% if reporte.prioridad == 'alta' %}
+
+                        <span class="badge bg-danger">
+                            Alta
+                        </span>
+
+                    {% elif reporte.prioridad == 'media' %}
+
+                        <span class="badge bg-warning text-dark">
+                            Media
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-success">
+                            Baja
+                        </span>
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <p>
+                    <strong>📌 Estado:</strong><br>
+
+                    {% if reporte.estado == 'Resuelto' %}
+
+                        <span class="badge bg-success">
+                            {{ reporte.estado }}
+                        </span>
+
+                    {% elif reporte.estado == 'En proceso' %}
+
+                        <span class="badge bg-warning text-dark">
+                            {{ reporte.estado }}
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-primary">
+                            {{ reporte.estado }}
+                        </span>
+
+                    {% endif %}
+
+                </p>
+
+                <p>
+                    <strong>📅 Fecha:</strong><br>
+                    {{ reporte.fecha }}
+                </p>
+
+                {% if reporte.tecnico %}
+
+                <p>
+                    <strong>👷 Técnico asignado:</strong><br>
+                    {{ reporte.tecnico.nombre }}
+                </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- 📖 DESCRIPCION -->
+        <div class="mt-4">
+
+            <h5 class="text-primary">
+                📖 Descripción
+            </h5>
+
+            <div class="bg-light p-3 rounded border">
+
+                {{ reporte.descripcion }}
+
+            </div>
+
+        </div>
+
+        <!-- 📸 EVIDENCIA -->
+        {% if reporte.imagen %}
+
+        <div class="mt-5">
+
+            <h5 class="text-primary mb-3">
+                📸 Evidencia Fotográfica
+            </h5>
+
+            <img src="{{ url_for('static',
+                    filename='img/uploads/' + reporte.imagen) }}"
+                 class="img-fluid rounded shadow">
+
+        </div>
+
+        {% endif %}
+
+        <!-- 🗺️ MAPA -->
+        {% if reporte.latitud and reporte.longitud %}
+
+        <div class="mt-5">
+
+            <h5 class="text-primary mb-3">
+                🗺️ Ubicación del Reporte
+            </h5>
+
+            <div id="mapa"
+                 style="height:400px;
+                        border-radius:12px;
+                        overflow:hidden;
+                        border:1px solid #ccc;">
+            </div>
+
+        </div>
+
+        {% endif %}
+
+        <!-- 📚 HISTORIAL -->
+        {% if historial %}
+
+        <div class="mt-5">
+
+            <h5 class="text-primary mb-3">
+                📚 Historial del Reporte
+            </h5>
+
+            <div class="timeline">
+
+                {% for h in historial %}
+
+                <div class="card mb-3 shadow-sm border-0">
+
+                    <div class="card-body">
+
+                        <h6 class="text-primary">
+                            {{ h.accion }}
+                        </h6>
+
+                        <p class="mb-1">
+                            {{ h.descripcion }}
+                        </p>
+
+                        <small class="text-muted">
+                            {{ h.fecha }}
+                        </small>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+        <!-- 🔘 BOTONES -->
+        <div class="mt-5 d-flex gap-2 flex-wrap">
+
+            <!-- PDF -->
+            <a href="/reporte/pdf/{{ reporte.id }}"
+               class="btn btn-danger">
+
+                📄 Descargar PDF
+
+            </a>
+
+            <!-- VOLVER -->
+            <a href="/reportes"
+               class="btn btn-secondary">
+
+                ⬅ Volver
+
+            </a>
+
+        </div>
+
+    </div>
+
 </div>
+
+<!-- 🌍 LEAFLET JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- 🗺️ SCRIPT MAPA -->
+{% if reporte.latitud and reporte.longitud %}
+
+<script>
+
+    var mapa = L.map('mapa').setView(
+        [{{ reporte.latitud }}, {{ reporte.longitud }}],
+        16
+    );
+
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: 'OpenStreetMap'
+        }
+    ).addTo(mapa);
+
+    L.marker([
+        {{ reporte.latitud }},
+        {{ reporte.longitud }}
+    ]).addTo(mapa)
+
+    .bindPopup("📍 Ubicación del reporte")
+    .openPopup();
+
+    // 🔧 Solución mapa gris
+    setTimeout(() => {
+        mapa.invalidateSize();
+    }, 500);
+
+</script>
+
+{% endif %}
 
 {% endblock %}
