@@ -4,12 +4,16 @@
 
 
 <div class="row justify-content-center">
+
     <div class="col-md-5">
 
         <div class="card shadow-lg p-4">
-            <h3 class="text-center mb-3">🔐 Iniciar Sesión</h3>
 
-            <!-- 🔴 MENSAJE DE ERROR -->
+            <h3 class="text-center mb-3">
+                🔐 Iniciar Sesión
+            </h3>
+
+            <!-- 🔴 MENSAJE ERROR -->
             {% if error %}
             <div class="alert alert-danger text-center">
                 {{ error }}
@@ -18,49 +22,109 @@
 
             <form method="POST">
 
+                <!-- 📧 CORREO -->
                 <div class="mb-3">
-                    <label>Correo</label>
-                    <input 
-                        type="email" 
-                        name="correo" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
+
+                    <label class="form-label">
+                        Correo
+                    </label>
+
+                    <input
+                        type="email"
+                        name="correo"
+                        class="form-control {% if error %}is-invalid{% endif %}"
                         value="{{ request.form.correo }}"
+                        placeholder="ejemplo@homefix.com"
                         required>
+
                 </div>
 
+                <!-- 🔑 PASSWORD -->
                 <div class="mb-3">
-                    <label>Contraseña</label>
-                    <input 
-                        type="password" 
-                        name="password" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
+
+                    <label class="form-label">
+                        Contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        class="form-control {% if error %}is-invalid{% endif %}"
+                        placeholder="********"
                         required>
+
                 </div>
 
+                <!-- 👤 ROL -->
                 <div class="mb-3">
-                    <label>Tipo de usuario</label>
-                    <select 
-                        name="rol" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
+
+                    <label class="form-label">
+                        Tipo de usuario
+                    </label>
+
+                    <select
+                        name="rol"
+                        class="form-select {% if error %}is-invalid{% endif %}"
                         required>
 
-                        <option value="usuario" {% if request.form.rol == 'usuario' %}selected{% endif %}>Usuario</option>
-                        <option value="admin" {% if request.form.rol == 'admin' %}selected{% endif %}>Administrador</option>
-                        <option value="tecnico" {% if request.form.rol == 'tecnico' %}selected{% endif %}>Técnico</option>
+                        <option value="">
+                            Selecciona un rol
+                        </option>
+
+                        <option value="usuario"
+                            {% if request.form.rol == 'usuario' %}
+                                selected
+                            {% endif %}>
+                            Usuario
+                        </option>
+
+                        <option value="admin"
+                            {% if request.form.rol == 'admin' %}
+                                selected
+                            {% endif %}>
+                            Administrador
+                        </option>
+
+                        <option value="tecnico"
+                            {% if request.form.rol == 'tecnico' %}
+                                selected
+                            {% endif %}>
+                            Técnico
+                        </option>
+
+                        <option value="entidad"
+                            {% if request.form.rol == 'entidad' %}
+                                selected
+                            {% endif %}>
+                            Entidad
+                        </option>
 
                     </select>
+
                 </div>
 
-                <button class="btn btn-primary w-100">Ingresar</button>
+                <!-- 🚀 BOTÓN -->
+                <button class="btn btn-primary w-100">
 
+                    Ingresar
+
+                </button>
+
+                <!-- 📝 REGISTRO -->
                 <div class="text-center mt-3">
-                    <a href="/registro">¿No tienes cuenta? Regístrate</a>
+
+                    <a href="/registro">
+                        ¿No tienes cuenta? Regístrate
+                    </a>
+
                 </div>
 
             </form>
+
         </div>
 
     </div>
+
 </div>
 
 {% endblock %}

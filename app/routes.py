@@ -5,7 +5,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from flask import send_file
-from . models import HistorialReporte
+from .models import HistorialReporte
 from flask import make_response
 from reportlab.pdfgen import canvas
 from io import BytesIO
@@ -16,7 +16,7 @@ import uuid
 main = Blueprint('main', __name__)
 
 
-# 🏠 INDEX
+# INDEX
 
 @main.route('/')
 def index():
@@ -24,38 +24,64 @@ def index():
 
 
 
-# 🔐 LOGIN
+# LOGIN
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
 
         correo = request.form.get('correo')
         password = request.form.get('password')
         rol = request.form.get('rol')
 
-        user = Usuario.query.filter_by(correo=correo).first()
+        # Buscar usuario
+        user = Usuario.query.filter_by(
+            correo=correo
+        ).first()
 
-        if not user or not user.check_password(password) or user.rol != rol:
-            flash('Credenciales incorrectas', 'danger')
-            return redirect('/login')
+        # Validar credenciales
+        if not user or not user.check_password(password):
 
+            return render_template(
+                'login.html',
+                error='Correo o contraseña incorrectos'
+            )
+
+        # Validar rol
+        if user.rol != rol:
+
+            return render_template(
+                'login.html',
+                error='El tipo de usuario no coincide'
+            )
+
+        # SESIÓN
         session['user_id'] = user.id
         session['rol'] = user.rol
+        session['nombre'] = user.nombre
 
-        if rol == 'admin':
+        # 🚀 REDIRECCIONES
+        if user.rol == 'admin':
             return redirect('/admin')
-        elif rol == 'tecnico':
+
+        elif user.rol == 'tecnico':
+
             return redirect('/tecnico')
-        elif rol == 'entidad':
+
+        elif user.rol == 'entidad':
+
             return redirect('/entidad')
+
         else:
+
             return redirect('/dashboard')
+
     return render_template('login.html')
 
 
 
-# 📝 REGISTRO
+# REGISTRO
 
 @main.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -68,13 +94,14 @@ def registro():
         token = request.form.get('token')
         entidad_nombre = request.form.get('entidad')
 
-        # ❌ VALIDAR CORREO
+        # VALIDAR CORREO
+
         if Usuario.query.filter_by(correo=correo).first():
             flash('El correo ya está registrado', 'danger')
             return redirect('/registro')
 
         
-        # 🔐 TECNICO
+        # TECNICO
         
         if rol == 'tecnico':
             token_db = TokenTecnico.query.filter_by(token=token, usado=False).first()
@@ -99,7 +126,7 @@ def registro():
             token_db.usado = True
 
         
-        # 🏢 ENTIDAD
+        # ENTIDAD
         
         elif rol == 'entidad':
             token_db = TokenEntidad.query.filter_by(token=token, usado=False).first()
@@ -123,7 +150,7 @@ def registro():
             token_db.usado = True
 
     
-        # 👤 USUARIO NORMAL
+        # USUARIO NORMAL
         
         else:
             user = Usuario(
@@ -143,11 +170,12 @@ def registro():
 
         return redirect('/dashboard')
 
-    return render_template('registro.html')
+    entidades = Entidad.query.all()
+    return render_template('registro.html', entidades = entidades)
 
 
 
-# 📊 ADMIN
+# ADMIN
 
 @main.route('/admin')
 def admin():
@@ -161,7 +189,7 @@ def admin():
 
 
 
-# 🔐 GENERAR TOKEN TECNICO
+# GENERAR TOKEN TECNICO
 
 @main.route('/generar-token-tecnico')
 def generar_token_tecnico():
@@ -179,7 +207,7 @@ def generar_token_tecnico():
 
 
 
-# 🔐 GENERAR TOKEN ENTIDAD
+# GENERAR TOKEN ENTIDAD
 
 @main.route('/generar-token-entidad')
 def generar_token_entidad():
@@ -197,7 +225,7 @@ def generar_token_entidad():
 
 
 
-# 🏢 PANEL ENTIDAD
+# PANEL ENTIDAD
 
 @main.route('/entidad')
 def entidad():
@@ -242,6 +270,12 @@ def editar_tecnico(id):
     reporte.estado = request.form.get('estado')
     reporte.descripcion = request.form.get('descripcion')
 
+    historial = HistorialReporte(
+        reporte_id = reporte.id,
+        accion = "Reporte actualizado",
+        detalle = f"Estado cambiado a {reporte.estado}"
+    )
+
     db.session.commit()
 
     flash('Reporte actualizado correctamente', 'success')
@@ -249,32 +283,35 @@ def editar_tecnico(id):
 
 @main.route('/eliminar-reporte/<int:id>', methods=['POST'])
 def eliminar_reporte(id):
+
     if session.get('rol') != 'tecnico':
         return redirect('/login')
 
     reporte = Reporte.query.get_or_404(id)
 
     motivo = request.form.get('motivo')
-    reporte.motivo_eliminacion = motivo
-
-    db.session.delete(reporte)
-    db.session.commit()
-
+    # GUARDAR HISTORIAL
     historial = HistorialReporte(
-            reporte_id = reporte.id,
-            accion = 'Reporte eliminado',
-            descripcion = f'Motivo: {motivo}'
-        )
-    
+        reporte_id=reporte.id,
+        accion="Reporte eliminado",
+        detalle=f"Motivo: {motivo}"
+    )
+
     db.session.add(historial)
     db.session.commit()
 
-    flash('Reporte eliminado correctamente', 'warning')
-    return redirect('/tecnico')
+    # GENERAR PDF AUTOMÁTICO
+    pdf = generar_pdf_interno(reporte.id)
+
+    # ELIMINAR REPORTE
+    db.session.delete(reporte)
+    db.session.commit()
+
+    return pdf
 
 
 
-# 👤 DASHBOARD USUARIO
+# DASHBOARD USUARIO
 
 @main.route('/dashboard')
 def dashboard():
@@ -286,16 +323,16 @@ def dashboard():
     return render_template('dashboard.html', reportes=reportes)
 
 
-# 📋 VER REPORTES (GENERAL)
+# VER REPORTES (GENERAL)
 
 @main.route('/reportes')
 def ver_reportes():
 
-    # 🔒 Si no está logueado → lo mando al inicio
+    # Si no está logueado → lo mando al inicio
     if 'user_id' not in session:
         return redirect('/')
 
-    # 🎭 FILTRO POR ROL
+    # FILTRO POR ROL
     if session['rol'] == 'usuario':
         reportes = Reporte.query.filter_by(user_id=session['user_id']).all()
 
@@ -312,7 +349,7 @@ def ver_reportes():
     return render_template('reportes.html', reportes=reportes)
 
 
-# 📄 CREAR REPORTE
+# CREAR REPORTE
 
 @main.route('/reportar', methods=['GET', 'POST'])
 def reportar():
@@ -357,13 +394,11 @@ def asignar_entidad(id):
 
     reporte.entidad_id = entidad_id
     reporte.estado = "Asignado a entidad"
-
-    db.session.commit()
-
+    
     historial = HistorialReporte(
             reporte_id = reporte.id,
-            accion = 'Entidad asignada',
-            descripcion = 'El administrador asignó una entidad'
+            accion = "Entidad asignada",
+            descripcion = f"El administrador asignó una entidad ID{entidad_id}"
         )
     
     db.session.add(historial)
@@ -373,7 +408,7 @@ def asignar_entidad(id):
 
 
 
-# 🧠 ASIGNAR TECNICO (ENTIDAD)
+# ASIGNAR TECNICO (ENTIDAD)
 
 @main.route('/asignar-tecnico/<int:id>', methods=['POST'])
 def asignar_tecnico(id):
@@ -385,12 +420,12 @@ def asignar_tecnico(id):
 
     reporte.tecnico_id = tecnico_id
     reporte.estado = "Asignado a técnico"
-    db.session.commit()
+
 
     historial = HistorialReporte(
             reporte_id = reporte.id,
-            accion = 'Tecnico asignado',
-            descripcion = 'La entidad asignó un técnico'
+            accion = "Tecnico asignado",
+            descripcion = f"La entidad asignó un técnico ID{tecnico_id}"
         )
     
     db.session.add(historial)
@@ -467,18 +502,17 @@ def reportes():
     reportes = Reporte.query.filter_by(user_id = session['user_id']).all()
     return render_template('reporte.html',reportes=reportes)
 
-# 🔓 LOGOUT
+# LOGOUT
 
 @main.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
 
-@main.route('/reporte/pdf/<int:id>')
-def generar_pdf(id):
 
-    if 'user_id' not in session:
-        return redirect('/login')
+# FUNCION INTERNA PDF
+
+def generar_pdf_interno(id):
 
     reporte = Reporte.query.get_or_404(id)
 
@@ -488,87 +522,57 @@ def generar_pdf(id):
 
     buffer = io.BytesIO()
 
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=letter
-    )
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
 
     styles = getSampleStyleSheet()
 
     contenido = []
 
-    # =========================
-    # TITULO
-    # =========================
+
     contenido.append(
         Paragraph("Reporte HomeFix", styles['Title'])
     )
 
-    contenido.append(Spacer(1, 20))
-
-    # =========================
-    # DATOS DEL REPORTE
-    # =========================
+    contenido.append(Spacer(1, 12))
     contenido.append(
-        Paragraph(f"<b>Título:</b> {reporte.titulo}", styles['Normal'])
+        Paragraph(f"Título: {reporte.titulo}", styles['Normal'])
     )
 
     contenido.append(
-        Paragraph(f"<b>Descripción:</b> {reporte.descripcion}", styles['Normal'])
+        Paragraph(f"Descripción: {reporte.descripcion}", styles['Normal'])
     )
 
     contenido.append(
-        Paragraph(f"<b>Dirección:</b> {reporte.direccion}", styles['Normal'])
+        Paragraph(f"Dirección: {reporte.direccion}", styles['Normal'])
     )
 
     contenido.append(
-        Paragraph(f"<b>Prioridad:</b> {reporte.prioridad}", styles['Normal'])
+        Paragraph(f"Prioridad: {reporte.prioridad}", styles['Normal'])
     )
 
     contenido.append(
-        Paragraph(f"<b>Estado:</b> {reporte.estado}", styles['Normal'])
+        Paragraph(f"Estado: {reporte.estado}", styles['Normal'])
     )
 
     contenido.append(Spacer(1, 20))
 
-    # =========================
-    # HISTORIAL
-    # =========================
     contenido.append(
-        Paragraph("Historial del Reporte", styles['Heading2'])
+        Paragraph("Historial del reporte", styles['Heading2'])
     )
 
-    contenido.append(Spacer(1, 10))
-
-    for item in historial:
+    for h in historial:
 
         texto = f"""
-        <b>Fecha:</b> {item.fecha}<br/>
-        <b>Acción:</b> {item.accion}<br/>
-        <b>Detalle:</b> {item.descripcion}
+        {h.fecha} <br/>
+        Acción: {h.accion} <br/>
+        Detalle: {h.detalle}
         """
 
         contenido.append(
             Paragraph(texto, styles['Normal'])
         )
 
-        contenido.append(Spacer(1, 12))
-
-    # =========================
-    # MOTIVO ELIMINACION
-    # =========================
-    if reporte.motivo_eliminacion:
-
-        contenido.append(
-            Paragraph(
-                f"<b>Motivo eliminación:</b> {reporte.motivo_eliminacion}",
-                styles['Normal']
-            )
-        )
-
-    # =========================
-    # CREAR PDF
-    # =========================
+        contenido.append(Spacer(1, 10))
     doc.build(contenido)
 
     buffer.seek(0)
@@ -579,3 +583,15 @@ def generar_pdf(id):
         download_name=f"reporte_{id}.pdf",
         mimetype='application/pdf'
     )
+
+
+
+# DESCARGAR PDF
+
+@main.route('/reporte/pdf/<int:id>')
+def generar_pdf(id):
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    return generar_pdf_interno(id)

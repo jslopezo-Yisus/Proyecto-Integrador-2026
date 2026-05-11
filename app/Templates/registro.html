@@ -2,98 +2,145 @@
 
 {% block content %}
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
+<div class="container mt-5">
 
-        <div class="card shadow-lg p-4">
-            <h3 class="text-center mb-3">📝 Crear Cuenta</h3>
+    <div class="card shadow-lg p-4">
 
-            <!-- 🔴 MENSAJE DE ERROR -->
-            {% if error %}
-            <div class="alert alert-danger text-center">
-                {{ error }}
+        <h2 class="text-center mb-4">
+            Crear Cuenta
+        </h2>
+
+        <form method="POST">
+
+            <!-- NOMBRE -->
+            <div class="mb-3">
+                <label>Nombre</label>
+                <input type="text"
+                       name="nombre"
+                       class="form-control"
+                       required>
             </div>
-            {% endif %}
 
-            <form method="POST">
+            <!-- CORREO -->
+            <div class="mb-3">
+                <label>Correo</label>
+                <input type="email"
+                       name="correo"
+                       class="form-control"
+                       required>
+            </div>
 
-                <div class="mb-3">
-                    <label>Usuario</label>
-                    <input 
-                        type="text" 
-                        name="nombre" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
-                        value="{{ request.form.nombre }}"
-                        required>
-                </div>
+            <!-- PASSWORD -->
+            <div class="mb-3">
+                <label>Contraseña</label>
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       required>
+            </div>
 
-                <div class="mb-3">
-                    <label>Correo</label>
-                    <input 
-                        type="email" 
-                        name="correo" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
-                        value="{{ request.form.correo }}"
-                        required>
-                </div>
+            <!-- ROL -->
+            <div class="mb-3">
+                <label>Rol</label>
 
-                <div class="mb-3">
-                    <label>Contraseña</label>
-                    <input 
-                        type="password" 
-                        name="password" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
-                        required>
-                </div>
-
-                <div class="mb-3">
-                    <label>Tipo de cuenta</label>
-                    <select 
-                        name="rol" 
-                        id="rol" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
-                        onchange="mostrarToken()" 
+                <select name="rol"
+                        id="rol"
+                        class="form-select"
+                        onchange="mostrarCampos()"
                         required>
 
-                        <option value="usuario" {% if request.form.rol == 'usuario' %}selected{% endif %}>Usuario</option>
-                        <option value="tecnico" {% if request.form.rol == 'tecnico' %}selected{% endif %}>Técnico</option>
+                    <option value="">Seleccione</option>
 
-                    </select>
-                </div>
+                    <option value="usuario">
+                        Usuario
+                    </option>
 
-                <div id="campoToken" style="display:none;">
-                    <label>Token de acceso (técnicos)</label>
-                    <input 
-                        type="text" 
-                        name="token" 
-                        class="form-control {% if error %}is-invalid{% endif %}" 
-                        value="{{ request.form.token }}">
-                </div>
+                    <option value="tecnico">
+                        Técnico
+                    </option>
 
-                <button class="btn btn-success w-100 mt-3">Registrarse</button>
+                    <option value="entidad">
+                        Entidad
+                    </option>
 
-                <div class="text-center mt-3">
-                    <a href="/login">Ya tengo cuenta</a>
-                </div>
+                </select>
+            </div>
 
-            </form>
-        </div>
+            <!-- TOKEN -->
+            <div class="mb-3 d-none" id="tokenDiv">
+
+                <label>Token de acceso</label>
+
+                <input type="text"
+                       name="token"
+                       class="form-control">
+
+            </div>
+
+            <!-- ENTIDAD -->
+            <div class="mb-3 d-none" id="entidadDiv">
+
+                <label>Entidad</label>
+
+                <select name="entidad"
+                        class="form-select">
+
+                    <option value="">
+                        Seleccione entidad
+                    </option>
+
+                    {% for e in entidades %}
+                        <option value="{{ e.nombre }}">
+                            {{ e.nombre }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <button class="btn btn-success w-100">
+                Registrarse
+            </button>
+
+        </form>
 
     </div>
+
 </div>
 
+<!-- SCRIPT -->
 <script>
-function mostrarToken() {
-    let rol = document.getElementById("rol").value;
-    let campo = document.getElementById("campoToken");
 
-    campo.style.display = (rol === "tecnico") ? "block" : "none";
+function mostrarCampos() {
+
+    let rol = document.getElementById("rol").value;
+
+    let tokenDiv = document.getElementById("tokenDiv");
+    let entidadDiv = document.getElementById("entidadDiv");
+
+    // ocultar
+    tokenDiv.classList.add("d-none");
+    entidadDiv.classList.add("d-none");
+
+    // técnico
+    if (rol == "tecnico") {
+
+        tokenDiv.classList.remove("d-none");
+        entidadDiv.classList.remove("d-none");
+
+    }
+
+    // entidad
+    else if (rol == "entidad") {
+
+        tokenDiv.classList.remove("d-none");
+        entidadDiv.classList.remove("d-none");
+
+    }
+
 }
 
-// 🔥 Mantener estado al recargar (clave UX)
-document.addEventListener("DOMContentLoaded", function() {
-    mostrarToken();
-});
 </script>
 
 {% endblock %}
