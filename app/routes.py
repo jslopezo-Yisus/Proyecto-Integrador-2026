@@ -9,6 +9,16 @@ from .models import HistorialReporte
 from flask import make_response
 from reportlab.pdfgen import canvas
 from io import BytesIO
+from datetime import datetime
+from reportlab.platypus import Table, TableStyle, Image
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.pdfgen.canvas import Canvas
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+import os
 import io
 import uuid
 
@@ -16,17 +26,46 @@ import uuid
 main = Blueprint('main', __name__)
 
 
+# MARCA DE AGUA HOMEFIX
+
+def agregar_marca_agua(canvas, doc):
+
+    logo_path = os.path.join(
+        'app',
+        'static',
+        'img',
+        'logo.png'
+    )
+
+    canvas.saveState()
+
+    # Transparencia
+    canvas.setFillAlpha(0.08)
+
+    # Dibujar logo
+    canvas.drawImage(
+        logo_path,
+        180,
+        250,
+        width=250,
+        height=250,
+        preserveAspectRatio=True,
+        mask='auto'
+    )
+
+    canvas.restoreState()
+
 # INDEX
 
 @main.route('/')
 def index():
-    return render_template('index.html')
+    return render_template ('index.html')
 
 
 
 # LOGIN
 
-@main.route('/login', methods=['GET', 'POST'])
+@main.route ('/login', methods=['GET', 'POST'])
 def login():
 
     if request.method == 'POST':
@@ -353,13 +392,39 @@ def ver_reportes():
 
 @main.route('/reportar', methods=['GET', 'POST'])
 def reportar():
+
     if request.method == 'POST':
 
+        tipo_dano = request.form.get('tipo_dano')
+
+        # ⏰ Hora actual
+        hora_actual = datetime.now().hour
+
+        # 🔥 PRIORIDAD AUTOMÁTICA
+
+        if tipo_dano == 'eléctrico':
+
+            if hora_actual >= 18 or hora_actual <= 5:
+                prioridad = 'alta'
+            else:
+                prioridad = 'media'
+
+        elif tipo_dano == 'plomería':
+            prioridad = 'media'
+
+        elif tipo_dano == 'estructura':
+            prioridad = 'alta'
+
+        else:
+            prioridad = 'baja'
+
+        # 📌 CREAR REPORTE
         nuevo = Reporte(
             titulo=request.form['titulo'],
             descripcion=request.form['descripcion'],
             direccion=request.form['direccion'],
-            prioridad=request.form['prioridad'],
+            tipo_dano=tipo_dano,
+            prioridad=prioridad,
             latitud=request.form.get('latitud'),
             longitud=request.form.get('longitud'),
             user_id=session.get('user_id')
@@ -368,13 +433,21 @@ def reportar():
         db.session.add(nuevo)
         db.session.commit()
 
+        # 🧾 HISTORIAL
         historial = HistorialReporte(
-            reporte_id = nuevo.id,
-            accion = 'Reporte Creado',
-            descripcion = 'El ususario creó el reporte'
+            reporte_id=nuevo.id,
+            accion='Reporte creado',
+            detalle=f'''
+            El usuario creó el reporte.
+            Tipo de daño: {tipo_dano}.
+            Prioridad asignada automáticamente: {prioridad}
+            '''
         )
+
         db.session.add(historial)
         db.session.commit()
+
+        flash('Reporte enviado correctamente', 'success')
 
         return redirect('/dashboard')
 
@@ -394,11 +467,11 @@ def asignar_entidad(id):
 
     reporte.entidad_id = entidad_id
     reporte.estado = "Asignado a entidad"
-    
+
     historial = HistorialReporte(
             reporte_id = reporte.id,
             accion = "Entidad asignada",
-            descripcion = f"El administrador asignó una entidad ID{entidad_id}"
+            detalle = f"El administrador asignó una entidad ID{entidad_id}"
         )
     
     db.session.add(historial)
@@ -425,7 +498,7 @@ def asignar_tecnico(id):
     historial = HistorialReporte(
             reporte_id = reporte.id,
             accion = "Tecnico asignado",
-            descripcion = f"La entidad asignó un técnico ID{tecnico_id}"
+            detalle = f"La entidad asignó un técnico ID{tecnico_id}"
         )
     
     db.session.add(historial)
@@ -464,7 +537,7 @@ def editar_reporte(id):
         historial = HistorialReporte(
             reporte_id = reporte.id,
             accion = 'Reporte editado',
-            descripcion = 'Se modifico la información del reporte'
+            detalle = 'Se modifico la información del reporte'
         )
 
         db.session.add(historial)
@@ -522,71 +595,428 @@ def generar_pdf_interno(id):
 
     buffer = io.BytesIO()
 
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=30
+    )
 
     styles = getSampleStyleSheet()
 
     contenido = []
 
+    
+    # LOGO
+    
 
-    contenido.append(
-        Paragraph("Reporte HomeFix", styles['Title'])
+    logo_path = os.path.join(
+        'app',
+        'static',
+        'img',
+        'logo.png'
     )
 
-    contenido.append(Spacer(1, 12))
-    contenido.append(
-        Paragraph(f"Título: {reporte.titulo}", styles['Normal'])
+    logo = Image(
+        logo_path,
+        width=80,
+        height=80
+    )
+
+    contenido.append(logo)
+
+    
+    # TITULO
+    
+
+    titulo_style = ParagraphStyle(
+        'Titulo',
+        parent=styles['Heading1'],
+        alignment=TA_CENTER,
+        textColor=colors.black,
+        fontSize=22,
+        leading=30
     )
 
     contenido.append(
-        Paragraph(f"Descripción: {reporte.descripcion}", styles['Normal'])
+        Paragraph(
+            "HOME-FIX<br/>Reporte Técnico Oficial",
+            titulo_style
+        )
     )
+
+    contenido.append(Spacer(1, 25))
+
+    
+    # INFORMACION GENERAL
+
+    header_style = ParagraphStyle(
+        'HeaderStyle',
+        parent=styles['BodyText'],
+        textColor=colors.white,
+        fontName='Helvetica-Bold'
+    )
+    
+
+    datos = [
+
+        [
+            Paragraph('Campo', header_style),
+            Paragraph('Información', header_style)
+        ],
+
+        [
+            Paragraph('Título', styles['BodyText']),
+            Paragraph(f"{reporte.titulo or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Descripción', styles['BodyText']),
+            Paragraph(f"{reporte.descripcion or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Dirección', styles['BodyText']),
+            Paragraph(f"{reporte.direccion or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Prioridad', styles['BodyText']),
+            Paragraph(f"{reporte.prioridad or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Estado', styles['BodyText']),
+            Paragraph(f"{reporte.estado or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Latitud', styles['BodyText']),
+            Paragraph(f"{reporte.latitud or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Longitud', styles['BodyText']),
+            Paragraph(f"{reporte.longitud or ''}", styles['BodyText'])
+        ]
+
+    ]
+
+    tabla = Table(
+        datos,
+        colWidths=[150, 320]
+    )
+
+    tabla.setStyle(TableStyle([
+
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1F3C88")),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+
+        ('GRID', (0,0), (-1,-1), 1, colors.grey),
+
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+
+        ('BACKGROUND', (0,1), (-1,-1), colors.beige),
+
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+
+        ('VALIGN', (0,0), (-1,-1), 'TOP')
+
+    ]))
+
+    contenido.append(tabla)
+
+    contenido.append(Spacer(1, 25))
+
+    
+    # HISTORIAL
+    
 
     contenido.append(
-        Paragraph(f"Dirección: {reporte.direccion}", styles['Normal'])
+        Paragraph(
+            "Historial del Reporte",
+            styles['Heading2']
+        )
     )
 
-    contenido.append(
-        Paragraph(f"Prioridad: {reporte.prioridad}", styles['Normal'])
-    )
-
-    contenido.append(
-        Paragraph(f"Estado: {reporte.estado}", styles['Normal'])
-    )
-
-    contenido.append(Spacer(1, 20))
-
-    contenido.append(
-        Paragraph("Historial del reporte", styles['Heading2'])
-    )
+    historial_data = [
+        ['Fecha', 'Acción', 'Detalle']
+    ]
 
     for h in historial:
 
-        texto = f"""
-        {h.fecha} <br/>
-        Acción: {h.accion} <br/>
-        Detalle: {h.detalle}
-        """
+        historial_data.append([
+            str(h.fecha),
+            h.accion,
+            h.detalle
+        ])
 
-        contenido.append(
-            Paragraph(texto, styles['Normal'])
+    tabla_historial = Table(
+        historial_data,
+        colWidths=[140, 150, 180]
+    )
+
+    tabla_historial.setStyle(TableStyle([
+
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1F3C88")),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+
+        ('GRID', (0,0), (-1,-1), 1, colors.grey),
+
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+
+        ('BACKGROUND', (0,1), (-1,-1), colors.beige),
+
+        ('VALIGN', (0,0), (-1,-1), 'TOP')
+
+    ]))
+
+    contenido.append(tabla_historial)
+
+    contenido.append(Spacer(1, 30))
+
+   
+    # FOOTER
+    
+
+    footer = Paragraph(
+        "HomeFix © 2026 | Plataforma Inteligente de Gestión de Incidencias",
+        ParagraphStyle(
+            'footer',
+            alignment=TA_CENTER,
+            textColor=colors.grey,
+            fontSize=9
         )
+    )
 
-        contenido.append(Spacer(1, 10))
-    doc.build(contenido)
+    contenido.append(footer)
+
+    
+    # CONSTRUIR PDF
+    
+
+    doc.build(
+        contenido,
+        onFirstPage=agregar_marca_agua,
+        onLaterPages=agregar_marca_agua
+    )
 
     buffer.seek(0)
 
     return send_file(
         buffer,
         as_attachment=True,
-        download_name=f"reporte_{id}.pdf",
+        download_name=f"reporte_tecnico_{id}.pdf",
+        mimetype='application/pdf'
+    )
+
+
+# PDF CIUDADANO
+
+def generar_pdf_ciudadano(id):
+
+    reporte = Reporte.query.get_or_404(id)
+
+    buffer = io.BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=30
+    )
+
+    styles = getSampleStyleSheet()
+
+    contenido = []
+
+    # =========================
+    # LOGO
+    # =========================
+
+    logo_path = os.path.join(
+        'app',
+        'static',
+        'img',
+        'logo.png'
+    )
+
+    logo = Image(
+        logo_path,
+        width=70,
+        height=70
+    )
+
+    contenido.append(logo)
+
+    # =========================
+    # TITULO
+    # =========================
+
+    titulo_style = ParagraphStyle(
+        'TituloCiudadano',
+        parent=styles['Heading1'],
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#1F3C88"),
+        fontSize=20,
+        leading=25
+    )
+
+    contenido.append(
+        Paragraph(
+            "HOMEFIX<br/>Resumen Ciudadano del Reporte",
+            titulo_style
+        )
+    )
+
+    contenido.append(Spacer(1, 20))
+
+    # =========================
+    # MENSAJE
+    # =========================
+
+    mensaje = """
+    Gracias por utilizar HomeFix.
+    Este documento resume la información principal
+    de su incidencia reportada.
+    """
+
+    contenido.append(
+        Paragraph(
+            mensaje,
+            styles['BodyText']
+        )
+    )
+
+    contenido.append(Spacer(1, 20))
+
+    # =========================
+    # TABLA PRINCIPAL
+    # =========================
+
+    datos = [
+
+        [
+            Paragraph('<b>Campo</b>', styles['BodyText']),
+            Paragraph('<b>Información</b>', styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Título', styles['BodyText']),
+            Paragraph(f"{reporte.titulo or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Descripción', styles['BodyText']),
+            Paragraph(f"{reporte.descripcion or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Dirección', styles['BodyText']),
+            Paragraph(f"{reporte.direccion or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Estado actual', styles['BodyText']),
+            Paragraph(f"{reporte.estado or ''}", styles['BodyText'])
+        ],
+
+        [
+            Paragraph('Prioridad', styles['BodyText']),
+            Paragraph(f"{reporte.prioridad or ''}", styles['BodyText'])
+        ]
+
+    ]
+
+    tabla = Table(
+        datos,
+        colWidths=[150, 320]
+    )
+
+    tabla.setStyle(TableStyle([
+
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1F3C88")),
+
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+
+        ('GRID', (0,0), (-1,-1), 1, colors.grey),
+
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+
+        ('BACKGROUND', (0,1), (-1,-1), colors.whitesmoke),
+
+        ('BOTTOMPADDING', (0,0), (-1,0), 10),
+
+        ('VALIGN', (0,0), (-1,-1), 'TOP')
+
+    ]))
+
+    contenido.append(tabla)
+
+    contenido.append(Spacer(1, 25))
+
+    # =========================
+    # MENSAJE FINAL
+    # =========================
+
+    texto_final = """
+    HomeFix continúa trabajando para mejorar
+    la atención y solución de incidencias
+    ciudadanas de manera rápida y eficiente.
+    """
+
+    contenido.append(
+        Paragraph(
+            texto_final,
+            styles['Italic']
+        )
+    )
+
+    contenido.append(Spacer(1, 30))
+
+    # =========================
+    # FOOTER
+    # =========================
+
+    footer = Paragraph(
+        "HomeFix © 2026 | Plataforma Inteligente de Gestión de Incidencias",
+        ParagraphStyle(
+            'footerCiudadano',
+            alignment=TA_CENTER,
+            textColor=colors.grey,
+            fontSize=9
+        )
+    )
+
+    contenido.append(footer)
+
+    # =========================
+    # CONSTRUIR PDF
+    # =========================
+
+    doc.build(
+        contenido,
+        onFirstPage=agregar_marca_agua,
+        onLaterPages=agregar_marca_agua
+    )
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=f"reporte_ciudadano_{id}.pdf",
         mimetype='application/pdf'
     )
 
 
 
 # DESCARGAR PDF
+
 
 @main.route('/reporte/pdf/<int:id>')
 def generar_pdf(id):
@@ -595,3 +1025,13 @@ def generar_pdf(id):
         return redirect('/login')
 
     return generar_pdf_interno(id)
+
+# PDF CIUDADANO
+
+@main.route('/reporte/pdf-ciudadano/<int:id>')
+def pdf_ciudadano(id):
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    return generar_pdf_ciudadano(id)

@@ -2,7 +2,7 @@ from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import uuid
-from datetime import datetime
+
 
 # USUARIOS
 class Usuario(db.Model):
@@ -153,4 +153,9 @@ class HistorialReporte(db.Model):
     fecha = db.Column(
         db.DateTime,
         default=datetime.utcnow
+    )
+
+    reporte = db.relationship(
+        'Reporte',
+        backref='historiales'
     )
