@@ -4,85 +4,319 @@
 
 <div class="container mt-4">
 
-    <!-- 🔷 TÍTULO -->
-    <h2 class="mb-4">🏢 Panel de Entidad</h2>
+    <!-- TITULO -->
 
-    <!-- 🔔 MENSAJES -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
+    <div class="mb-4">
+
+        <h2 class="fw-bold">
+            🏢 Panel Entidad
+        </h2>
+
+        <p class="text-muted">
+            Gestión operativa y asignación de incidencias
+        </p>
+
+    </div>
+
+
+    <!-- KPI DASHBOARD -->
+
+    <div class="row g-4 mb-4">
+
+        <!-- TOTAL -->
+
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card shadow border-0 bg-primary text-white h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Total Reportes</h6>
+
+                    <h2>{{ total_reportes }}</h2>
+
                 </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
 
-    <!-- 📊 TABLA DE REPORTES -->
-    <div class="card shadow-sm p-3">
-        <h5 class="mb-3">📋 Reportes asignados a tu entidad</h5>
+            </div>
 
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Dirección</th>
-                    <th>Prioridad</th>
-                    <th>Estado</th>
-                    <th>Asignar Técnico</th>
-                </tr>
-            </thead>
+        </div>
 
-            <tbody>
-                {% for r in reportes %}
-                <tr>
-                    <td>{{ r.id }}</td>
-                    <td>{{ r.titulo }}</td>
-                    <td>{{ r.direccion }}</td>
 
-                    <td>
-                        {% if r.prioridad == 'Alta' %}
-                            <span class="badge bg-danger">Alta</span>
-                        {% elif r.prioridad == 'Media' %}
-                            <span class="badge bg-warning text-dark">Media</span>
-                        {% else %}
-                            <span class="badge bg-success">Baja</span>
-                        {% endif %}
-                    </td>
+        <!-- RESUELTOS -->
 
-                    <td>
-                        <span class="badge bg-info text-dark">
-                            {{ r.estado }}
-                        </span>
-                    </td>
+        <div class="col-md-4 col-lg-2">
 
-                    <td>
-                        <!-- 🔧 ASIGNAR TÉCNICO -->
-                        <form method="POST" action="/asignar-tecnico/{{ r.id }}">
-                            
-                            <select name="tecnico_id" class="form-select mb-2" required>
-                                <option value="">Seleccionar técnico</option>
+            <div class="card shadow border-0 bg-success text-white h-100">
 
-                                {% for t in tecnicos %}
-                                    <option value="{{ t.id }}"
-                                        {% if r.tecnico_id == t.id %} selected {% endif %}>
-                                        {{ t.nombre }}
+                <div class="card-body text-center">
+
+                    <h6>Resueltos</h6>
+
+                    <h2>{{ reportes_resueltos }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDIENTES -->
+
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card shadow border-0 bg-warning text-dark h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Pendientes</h6>
+
+                    <h2>{{ reportes_pendientes }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TECNICOS -->
+
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card shadow border-0 bg-dark text-white h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Técnicos</h6>
+
+                    <h2>{{ total_tecnicos }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SATISFACCION -->
+
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card shadow border-0 bg-info text-dark h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Satisfacción</h6>
+
+                    <h2>⭐ {{ promedio_calificacion }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TABLA REPORTES -->
+
+    <div class="card shadow border-0 p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    📋 Reportes Asignados
+                </h5>
+
+                <small class="text-muted">
+                    Administración y asignación de técnicos
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Título</th>
+
+                        <th>Dirección</th>
+
+                        <th>Estado</th>
+
+                        <th>Técnico Actual</th>
+
+                        <th>Asignar Técnico</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for r in reportes %}
+
+                    <tr>
+
+                        <!-- ID -->
+
+                        <td>
+
+                            <strong>#{{ r.id }}</strong>
+
+                        </td>
+
+
+                        <!-- TITULO -->
+
+                        <td>
+
+                            {{ r.titulo }}
+
+                        </td>
+
+
+                        <!-- DIRECCION -->
+
+                        <td>
+
+                            {{ r.direccion }}
+
+                        </td>
+
+
+                        <!-- ESTADO -->
+
+                        <td>
+
+                            {% if r.estado == 'Solucionado' %}
+
+                                <span class="badge bg-success px-3 py-2">
+                                    ✅ Solucionado
+                                </span>
+
+                            {% elif r.estado == 'Asignado a técnico' %}
+
+                                <span class="badge bg-warning text-dark px-3 py-2">
+                                    🛠️ En proceso
+                                </span>
+
+                            {% elif r.estado == 'Iniciado' %}
+
+                                <span class="badge bg-secondary px-3 py-2">
+                                    ⏳ Iniciado
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-info text-dark px-3 py-2">
+                                    {{ r.estado }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- TECNICO ACTUAL -->
+
+                        <td>
+
+                            {% if r.tecnico %}
+
+                                <span class="badge bg-dark">
+
+                                    👷 {{ r.tecnico.nombre }}
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    Sin asignar
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ASIGNAR TECNICO -->
+
+                        <td style="min-width: 260px;">
+
+                            <form method="POST"
+                                  action="/asignar-tecnico/{{ r.id }}"
+                                  class="form-asignar">
+
+                                <select name="tecnico_id"
+                                        class="form-select mb-2"
+                                        required>
+
+                                    <option value="">
+                                        Seleccionar técnico
                                     </option>
-                                {% endfor %}
-                            </select>
 
-                            <button class="btn btn-primary btn-sm w-100">
-                                Asignar
-                            </button>
+                                    {% for t in tecnicos %}
 
-                        </form>
-                    </td>
+                                        <option value="{{ t.id }}"
 
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                            {% if r.tecnico_id == t.id %}
+                                                selected
+                                            {% endif %}
+
+                                        >
+
+                                            {{ t.nombre }}
+
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <button class="btn btn-primary btn-sm w-100">
+
+                                    {% if r.tecnico_id %}
+
+                                        🔄 Reasignar Técnico
+
+                                    {% else %}
+
+                                        ✅ Asignar Técnico
+
+                                    {% endif %}
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 

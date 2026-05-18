@@ -218,13 +218,117 @@ def registro():
 
 @main.route('/admin')
 def admin():
+
     if session.get('rol') != 'admin':
         return redirect('/login')
 
     reportes = Reporte.query.all()
+
     entidades = Entidad.query.all()
 
-    return render_template('admin.html', reportes=reportes, entidades=entidades)
+    
+    # KPI
+   
+
+    total_reportes = Reporte.query.count()
+
+    reportes_resueltos = Reporte.query.filter_by(
+        estado='Solucionado'
+    ).count()
+
+    reportes_pendientes = Reporte.query.filter(
+        Reporte.estado != 'Solucionado'
+    ).count()
+
+    tecnicos = Usuario.query.filter_by(
+        rol='tecnico'
+    ).count()
+
+    entidades_total = Entidad.query.count()
+
+    promedio_calificacion = db.session.query(
+        db.func.avg(Reporte.calificacion)
+    ).scalar()
+
+    if not promedio_calificacion:
+        promedio_calificacion = 0
+
+    
+    # GRAFICA ESTADOS
+    
+
+    iniciados = Reporte.query.filter_by(
+        estado='Iniciado'
+    ).count()
+
+    proceso = Reporte.query.filter_by(
+        estado='En proceso'
+    ).count()
+
+    solucionados = Reporte.query.filter_by(
+        estado='Solucionado'
+    ).count()
+
+    
+    # GRAFICA PRIORIDAD
+    
+
+    prioridad_alta = Reporte.query.filter_by(
+        prioridad='Alta'
+    ).count()
+
+    prioridad_media = Reporte.query.filter_by(
+        prioridad='Media'
+    ).count()
+
+    prioridad_baja = Reporte.query.filter_by(
+        prioridad='Baja'
+    ).count()
+
+    return render_template(
+
+        'admin.html',
+
+        reportes=reportes,
+        entidades=entidades,
+
+        total_reportes=total_reportes,
+        reportes_resueltos=reportes_resueltos,
+        reportes_pendientes=reportes_pendientes,
+        tecnicos=tecnicos,
+        entidades_total=entidades_total,
+
+        promedio_calificacion=round(
+            promedio_calificacion,
+            1
+        ),
+
+        # CHARTS
+
+        estados_labels=[
+            'Iniciado',
+            'En proceso',
+            'Solucionado'
+        ],
+
+        estados_data=[
+            iniciados,
+            proceso,
+            solucionados
+        ],
+
+        prioridad_labels=[
+            'Alta',
+            'Media',
+            'Baja'
+        ],
+
+        prioridad_data=[
+            prioridad_alta,
+            prioridad_media,
+            prioridad_baja
+        ]
+    )
 
 
 
@@ -268,23 +372,74 @@ def generar_token_entidad():
 
 @main.route('/entidad')
 def entidad():
+
     if session.get('rol') != 'entidad':
         return redirect('/login')
 
-    #  Usuario actual
+    # USUARIO ACTUAL
     user_id = session.get('user_id')
+
     usuario = Usuario.query.get(user_id)
 
-    #  Entidad del usuario
+    # ENTIDAD DEL USUARIO
     entidad_id = usuario.entidad_id
 
-    #  Reportes SOLO de esa entidad
-    reportes = Reporte.query.filter_by(entidad_id=entidad_id).all()
+    # REPORTES DE ESA ENTIDAD
+    reportes = Reporte.query.filter_by(
+        entidad_id=entidad_id
+    ).all()
 
-    #  Técnicos SOLO de esa entidad
-    tecnicos = Usuario.query.filter_by(rol='tecnico', entidad_id=entidad_id).all()
+    # TECNICOS DE ESA ENTIDAD
+    tecnicos = Usuario.query.filter_by(
+        rol='tecnico',
+        entidad_id=entidad_id
+    ).all()
 
-    return render_template('entidad.html', reportes=reportes, tecnicos=tecnicos)
+    
+    # KPI
+    
+
+    total_reportes = Reporte.query.filter_by(
+        entidad_id=entidad_id
+    ).count()
+
+    reportes_resueltos = Reporte.query.filter_by(
+        entidad_id=entidad_id,
+        estado='Solucionado'
+    ).count()
+
+    reportes_pendientes = Reporte.query.filter(
+        Reporte.entidad_id == entidad_id,
+        Reporte.estado != 'Solucionado'
+    ).count()
+
+    total_tecnicos = Usuario.query.filter_by(
+        rol='tecnico',
+        entidad_id=entidad_id
+    ).count()
+
+    promedio_calificacion = db.session.query(
+        db.func.avg(Reporte.calificacion)
+    ).filter(
+        Reporte.entidad_id == entidad_id
+    ).scalar()
+
+    if not promedio_calificacion:
+        promedio_calificacion = 0
+
+    return render_template(
+
+        'entidad.html',
+
+        reportes=reportes,
+        tecnicos=tecnicos,
+
+        total_reportes=total_reportes,
+        reportes_resueltos=reportes_resueltos,
+        reportes_pendientes=reportes_pendientes,
+        total_tecnicos=total_tecnicos,
+        promedio_calificacion=round(promedio_calificacion, 1)
+    )
 
 
 
@@ -295,29 +450,83 @@ def tecnico():
 
     if session.get('rol') != 'tecnico':
         return redirect('/login')
-    reportes = Reporte.query.filter_by(tecnico_id=session['user_id']).all()
 
-    return render_template('tecnico.html', reportes=reportes)
+    tecnico_id = session.get('user_id')
+
+    # REPORTES DEL TECNICO
+    reportes = Reporte.query.filter_by(
+        tecnico_id=tecnico_id
+    ).all()
+
+    
+    # KPI
+    
+
+    total_reportes = Reporte.query.filter_by(
+        tecnico_id=tecnico_id
+    ).count()
+
+    reportes_resueltos = Reporte.query.filter_by(
+        tecnico_id=tecnico_id,
+        estado='Solucionado'
+    ).count()
+
+    reportes_pendientes = Reporte.query.filter(
+        Reporte.tecnico_id == tecnico_id,
+        Reporte.estado != 'Solucionado'
+    ).count()
+
+    promedio_calificacion = db.session.query(
+        db.func.avg(Reporte.calificacion)
+    ).filter(
+        Reporte.tecnico_id == tecnico_id
+    ).scalar()
+
+    if not promedio_calificacion:
+        promedio_calificacion = 0
+
+    return render_template(
+
+        'tecnico.html',
+
+        reportes=reportes,
+
+        total_reportes=total_reportes,
+        reportes_resueltos=reportes_resueltos,
+        reportes_pendientes=reportes_pendientes,
+        promedio_calificacion=round(promedio_calificacion, 1)
+    )
 
 @main.route('/editar-tecnico/<int:id>', methods=['POST'])
 def editar_tecnico(id):
+
     if session.get('rol') != 'tecnico':
         return redirect('/login')
 
     reporte = Reporte.query.get_or_404(id)
 
+    # ACTUALIZAR DATOS
     reporte.estado = request.form.get('estado')
     reporte.descripcion = request.form.get('descripcion')
 
+    # SI EL REPORTE FUE SOLUCIONADO
+    if reporte.estado == 'Solucionado':
+
+        reporte.fecha_solucion = datetime.utcnow()
+
+    # GUARDAR HISTORIAL
     historial = HistorialReporte(
-        reporte_id = reporte.id,
-        accion = "Reporte actualizado",
-        detalle = f"Estado cambiado a {reporte.estado}"
+        reporte_id=reporte.id,
+        accion="Reporte actualizado",
+        detalle=f"Estado cambiado a {reporte.estado}"
     )
+
+    db.session.add(historial)
 
     db.session.commit()
 
     flash('Reporte actualizado correctamente', 'success')
+
     return redirect('/tecnico')
 
 @main.route('/eliminar-reporte/<int:id>', methods=['POST'])
@@ -503,6 +712,8 @@ def asignar_tecnico(id):
     
     db.session.add(historial)
     db.session.commit()
+
+    flash('Tecnico asignado correctamente','seccess')
 
     return redirect('/entidad')
 

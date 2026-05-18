@@ -4,148 +4,95 @@
 
 <div class="container mt-4">
 
-    <!-- 🔷 TÍTULO -->
-    <h2 class="mb-4">👷 Panel Técnico</h2>
+    <!-- TITULO -->
 
-    <!-- 🔔 MENSAJES -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <div class="mb-4">
 
-    <!-- 📊 TABLA -->
-    <div class="card shadow-sm p-3">
+        <h2 class="fw-bold">
+            👷 Panel Técnico
+        </h2>
 
-        <h5 class="mb-3">📋 Mis Reportes Asignados</h5>
-
-        <table class="table table-bordered table-hover align-middle">
-
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Dirección</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                {% for r in reportes %}
-
-                <tr>
-
-                    <td>{{ r.id }}</td>
-                    <td>{{ r.titulo }}</td>
-                    <td>{{ r.direccion }}</td>
-
-                    <td>
-
-                        {% if r.estado == 'Iniciado' %}
-                            <span class="badge bg-secondary">Iniciado</span>
-
-                        {% elif r.estado == 'En proceso' %}
-                            <span class="badge bg-warning text-dark">
-                                En proceso
-                            </span>
-
-                        {% elif r.estado == 'Resuelto' %}
-                            <span class="badge bg-success">
-                                Resuelto
-                            </span>
-
-                        {% else %}
-                            <span class="badge bg-info text-dark">
-                                {{ r.estado }}
-                            </span>
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        <!-- 🔍 VER -->
-                        <button type="button"
-                                class="btn btn-info btn-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#ver{{ r.id }}">
-
-                            Ver
-
-                        </button>
-
-                        <!-- ✏️ EDITAR -->
-                        <button type="button"
-                                class="btn btn-primary btn-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#editar{{ r.id }}">
-
-                            Editar
-
-                        </button>
-
-                        <!-- 🗑️ ELIMINAR -->
-                        <button type="button"
-                                class="btn btn-danger btn-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#eliminar{{ r.id }}">
-
-                            Eliminar
-
-                        </button>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
+        <p class="text-muted">
+            Gestión de incidencias y desempeño operativo
+        </p>
 
     </div>
 
-</div>
 
-<!-- ================================================= -->
-<!-- 🔥 MODALES FUERA DE LA TABLA -->
-<!-- ================================================= -->
+    <!-- KPI -->
 
-{% for r in reportes %}
+    <div class="row g-4 mb-4">
 
-<!-- ================= VER ================= -->
+        <!-- TOTAL -->
 
-<div class="modal fade"
-     id="ver{{ r.id }}"
-     tabindex="-1">
+        <div class="col-md-3">
 
-    <div class="modal-dialog">
+            <div class="card border-0 shadow bg-primary text-white h-100">
 
-        <div class="modal-content p-3">
+                <div class="card-body text-center">
 
-            <h5>Detalle del reporte</h5>
+                    <h6>Total Reportes</h6>
 
-            <p><b>Título:</b> {{ r.titulo }}</p>
-            <p><b>Descripción:</b> {{ r.descripcion }}</p>
-            <p><b>Dirección:</b> {{ r.direccion }}</p>
-            <p><b>Estado:</b> {{ r.estado }}</p>
+                    <h2>{{ total_reportes }}</h2>
 
-            <div class="text-end">
+                </div>
 
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
+            </div>
 
-                    Cerrar
+        </div>
 
-                </button>
+
+        <!-- RESUELTOS -->
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow bg-success text-white h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Resueltos</h6>
+
+                    <h2>{{ reportes_resueltos }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDIENTES -->
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow bg-warning text-dark h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Pendientes</h6>
+
+                    <h2>{{ reportes_pendientes }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SATISFACCION -->
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow bg-info text-dark h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Satisfacción</h6>
+
+                    <h2>⭐ {{ promedio_calificacion }}</h2>
+
+                </div>
 
             </div>
 
@@ -153,46 +100,332 @@
 
     </div>
 
-</div>
 
-<!-- ================= EDITAR ================= -->
+    <!-- TABLA -->
 
-<div class="modal fade"
-     id="editar{{ r.id }}"
-     tabindex="-1">
+    <div class="card shadow border-0 p-4">
 
-    <div class="modal-dialog">
+        <div class="mb-3">
 
-        <div class="modal-content p-3">
+            <h5 class="fw-bold">
+                📋 Mis Reportes Asignados
+            </h5>
 
-            <h5>Actualizar reporte</h5>
+            <small class="text-muted">
+                Administración y actualización de incidencias
+            </small>
 
-            <form method="POST"
-                  action="/editar-tecnico/{{ r.id }}">
+        </div>
 
-                <label>Estado</label>
 
-                <select name="estado"
-                        class="form-select mb-2"
-                        required>
+        <div class="table-responsive">
 
-                    <option>Iniciado</option>
-                    <option>En proceso</option>
-                    <option>Resuelto</option>
+            <table class="table table-hover align-middle">
 
-                </select>
+                <thead class="table-dark">
 
-                <label>Descripción de solución</label>
+                    <tr>
 
-                <textarea name="descripcion"
-                          class="form-control mb-2"
-                          required></textarea>
+                        <th>ID</th>
 
-                <button class="btn btn-success w-100">
-                    Guardar cambios
-                </button>
+                        <th>Título</th>
 
-            </form>
+                        <th>Dirección</th>
+
+                        <th>Estado</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for r in reportes %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>#{{ r.id }}</strong>
+
+                        </td>
+
+                        <td>
+
+                            {{ r.titulo }}
+
+                        </td>
+
+                        <td>
+
+                            {{ r.direccion }}
+
+                        </td>
+
+                        <td>
+
+                            {% if r.estado == 'Solucionado' %}
+
+                                <span class="badge bg-success">
+                                    Solucionado
+                                </span>
+
+                            {% elif r.estado == 'En proceso' %}
+
+                                <span class="badge bg-warning text-dark">
+                                    En proceso
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-secondary">
+                                    {{ r.estado }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <!-- VER -->
+
+                            <button class="btn btn-info btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ver{{ r.id }}">
+
+                                Ver
+
+                            </button>
+
+
+                            <!-- EDITAR -->
+
+                            <button class="btn btn-primary btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editar{{ r.id }}">
+
+                                Editar
+
+                            </button>
+
+
+                            <!-- ELIMINAR -->
+
+                            <button class="btn btn-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#eliminar{{ r.id }}">
+
+                                Eliminar
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- MODAL VER -->
+
+                    <div class="modal fade"
+                         id="ver{{ r.id }}"
+                         tabindex="-1">
+
+                        <div class="modal-dialog modal-lg">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+
+                                        📄 Detalle del Reporte
+
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <p><strong>Título:</strong> {{ r.titulo }}</p>
+
+                                    <p><strong>Descripción:</strong> {{ r.descripcion }}</p>
+
+                                    <p><strong>Dirección:</strong> {{ r.direccion }}</p>
+
+                                    <p><strong>Estado:</strong> {{ r.estado }}</p>
+
+                                    <p><strong>Prioridad:</strong> {{ r.prioridad }}</p>
+
+
+                                    {% if r.imagen %}
+
+                                        <img src="{{ url_for('static', filename='img/uploads/' + r.imagen) }}"
+                                             class="img-fluid rounded shadow mt-3">
+
+                                    {% endif %}
+
+
+                                    {% if r.latitud and r.longitud %}
+
+                                        <div id="mapa{{ r.id }}"
+                                             style="height: 300px;"
+                                             class="rounded mt-4">
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MODAL EDITAR -->
+
+                    <div class="modal fade"
+                         id="editar{{ r.id }}"
+                         tabindex="-1">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+
+                                        ✏️ Actualizar Reporte
+
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <form method="POST"
+                                          action="/editar-tecnico/{{ r.id }}"
+                                          clas="form-editar">
+
+                                        <label class="mb-2">
+                                            Estado
+                                        </label>
+
+                                        <select name="estado"
+                                                class="form-select mb-3"
+                                                required>
+
+                                            <option>Iniciado</option>
+
+                                            <option>En proceso</option>
+
+                                            <option>Solucionado</option>
+
+                                        </select>
+
+                                        <label class="mb-2">
+                                            Descripción solución
+                                        </label>
+
+                                        <textarea name="descripcion"
+                                                  class="form-control mb-3"
+                                                  required></textarea>
+
+                                        <button class="btn btn-success w-100">
+
+                                            Guardar cambios
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MODAL ELIMINAR -->
+
+                    <div class="modal fade"
+                         id="eliminar{{ r.id }}"
+                         tabindex="-1">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+
+                                    <h5 class="modal-title">
+
+                                        🗑️ Eliminar Reporte
+
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal">
+                                    </button>
+
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <form method="POST"
+                                          action="/eliminar-reporte/{{ r.id }}"
+                                          class="form-eliminar">
+
+                                        <label class="mb-2">
+
+                                            Motivo eliminación
+
+                                        </label>
+
+                                        <textarea name="motivo"
+                                                  class="form-control mb-3"
+                                                  required></textarea>
+
+                                        <button class="btn btn-danger w-100">
+
+                                            Eliminar reporte
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
 
         </div>
 
@@ -200,38 +433,87 @@
 
 </div>
 
-<!-- ================= ELIMINAR ================= -->
 
-<div class="modal fade"
-     id="eliminar{{ r.id }}"
-     tabindex="-1">
+<!-- LEAFLET -->
 
-    <div class="modal-dialog">
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
-        <div class="modal-content p-3">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-            <h5>Eliminar reporte</h5>
 
-            <form method="POST"
-                  action="/eliminar-reporte/{{ r.id }}">
+<!-- MAPAS -->
 
-                <label>Motivo de eliminación</label>
+<script>
 
-                <textarea name="motivo"
-                          class="form-control mb-2"
-                          required></textarea>
+{% for r in reportes %}
 
-                <button class="btn btn-danger w-100">
-                    Eliminar
-                </button>
+    {% if r.latitud and r.longitud %}
 
-            </form>
+        var mapa{{ r.id }} = L.map('mapa{{ r.id }}').setView(
+            [
+                Number("{{ r.latitud }}"),
+                Number("{{ r.longitud }}")
+            ],
+            16
+        );
 
-        </div>
-    </div>
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                attribution: 'OpenStreetMap'
+            }
+        ).addTo(mapa{{ r.id }});
 
-</div>
+        L.marker([
+            Number("{{ r.latitud }}"),
+            Number("{{ r.longitud }}")
+        ]).addTo(mapa{{ r.id }});
+
+    {% endif %}
 
 {% endfor %}
+
+</script>
+
+<script>
+
+    const formulariosEliminar = document.querySelectorAll('.form-eliminar');
+
+    formulariosEliminar.forEach(form => {
+
+        form.addEventListener('submit', function(e) {
+
+            e.preventDefault();
+
+            Swal.fire({
+
+                title: '¿Eliminar reporte?',
+
+                text: 'Esta acción generará el PDF y eliminará el reporte.',
+
+                icon: 'warning',
+
+                showCancelButton: true,
+
+                confirmButtonText: 'Sí, eliminar',
+
+                cancelButtonText: 'Cancelar'
+
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    form.submit();
+
+                }
+
+            });
+
+        });
+
+    });
+
+</script>
 
 {% endblock %}

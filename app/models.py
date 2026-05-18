@@ -103,6 +103,24 @@ class Reporte(db.Model):
         foreign_keys=[tecnico_id]
     )
 
+    fecha_creacion = db.Column(
+    db.DateTime,
+    default = datetime.utcnow
+    )
+    
+    fecha_solucion = db.Column(
+    db.DateTime
+    )
+    
+    calificacion = db.Column(
+    db.Integer
+    
+    )
+    
+    comentario_calificacion = db.Column(
+    db.Text
+    )
+
 
 # TOKEN TÉCNICO
 

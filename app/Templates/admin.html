@@ -4,99 +4,468 @@
 
 <div class="container mt-4">
 
-    <!-- 🔷 TÍTULO -->
-    <h2 class="mb-4">Panel Administrativo</h2>
+    <!-- TITULO -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <!-- 🔔 MENSAJES -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+        <div>
+            <h2 class="fw-bold">📊 Panel Administrativo</h2>
+            <p class="text-muted mb-0">
+                Supervisión general de incidencias y desempeño del sistema HomeFix
+            </p>
+        </div>
 
-    <!-- 🔐 GENERAR TOKENS -->
-    <div class="card shadow-sm p-3 mb-4">
-        <h5>🔐 Gestión de Tokens</h5>
-
-        <a href="/generar-token-tecnico" class="btn btn-dark me-2">
-            Generar Token Técnico
-        </a>
-
-        <a href="/generar-token-entidad" class="btn btn-secondary">
-            Generar Token Entidad
-        </a>
     </div>
 
-    <!-- 📊 TABLA DE REPORTES -->
-    <div class="card shadow-sm p-3">
-        <h5 class="mb-3">Gestión de Incidencias</h5>
 
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Dirección</th>
-                    <th>Prioridad</th>
-                    <th>Estado</th>
-                    <th>Asignar Entidad</th>
-                </tr>
-            </thead>
+    <!-- KPI DASHBOARD -->
 
-            <tbody>
-                {% for r in reportes %}
-                <tr>
-                    <td>{{ r.id }}</td>
-                    <td>{{ r.titulo }}</td>
-                    <td>{{ r.direccion }}</td>
-                    <td>
-                        {% if r.prioridad == 'Alta' %}
-                            <span class="badge bg-danger">Alta</span>
-                        {% elif r.prioridad == 'Media' %}
-                            <span class="badge bg-warning text-dark">Media</span>
-                        {% else %}
-                            <span class="badge bg-success">Baja</span>
-                        {% endif %}
-                    </td>
+    <div class="row g-4 mb-4">
 
-                    <td>
-                        <span class="badge bg-info text-dark">
-                            {{ r.estado }}
-                        </span>
-                    </td>
+        <!-- TOTAL REPORTES -->
+        <div class="col-md-4 col-lg-2">
 
-                    <td>
-                        <form method="POST" action="/asignar-entidad/{{ r.id }}">
-                            
-                            <select name="entidad_id" class="form-select mb-2" required>
-                                <option value="">Seleccionar entidad</option>
+            <div class="card border-0 shadow h-100 bg-primary text-white">
 
-                                {% for e in entidades %}
-                                    <option value="{{ e.id }}"
-                                        {% if r.entidad_id == e.id %} selected {% endif %}>
-                                        {{ e.nombre }}
+                <div class="card-body text-center">
+
+                    <h6 class="text-uppercase">
+                        Total Reportes
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ total_reportes }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESUELTOS -->
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card border-0 shadow h-100 bg-success text-white">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-uppercase">
+                        Resueltos
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ reportes_resueltos }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDIENTES -->
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card border-0 shadow h-100 bg-warning text-dark">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-uppercase">
+                        Pendientes
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ reportes_pendientes }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TECNICOS -->
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card border-0 shadow h-100 bg-dark text-white">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-uppercase">
+                        Técnicos
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ tecnicos }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ENTIDADES -->
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card border-0 shadow h-100 bg-secondary text-white">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-uppercase">
+                        Entidades
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        {{ entidades_total }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CALIFICACION -->
+        <div class="col-md-4 col-lg-2">
+
+            <div class="card border-0 shadow h-100 bg-info text-dark">
+
+                <div class="card-body text-center">
+
+                    <h6 class="text-uppercase">
+                        Satisfacción
+                    </h6>
+
+                    <h2 class="fw-bold">
+                        ⭐ {{ promedio_calificacion }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- GESTION TOKENS -->
+
+    <div class="card shadow-sm border-0 p-4 mb-4">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+            <div>
+                <h5 class="fw-bold">
+                    🔐 Gestión de Tokens
+                </h5>
+
+                <p class="text-muted mb-0">
+                    Administración de accesos para técnicos y entidades
+                </p>
+            </div>
+
+            <div class="mt-3 mt-md-0">
+
+                <a href="/generar-token-tecnico"
+                   class="btn btn-dark me-2">
+
+                    Generar Token Técnico
+
+                </a>
+
+                <a href="/generar-token-entidad"
+                   class="btn btn-secondary">
+
+                    Generar Token Entidad
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- 📊 TABLA REPORTES -->
+
+    <div class="card shadow-sm border-0 p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <div>
+
+                <h5 class="fw-bold mb-0">
+                    📋 Gestión de Incidencias
+                </h5>
+
+                <small class="text-muted">
+                    Supervisión y asignación de reportes
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Título</th>
+
+                        <th>Dirección</th>
+
+                        <th>Prioridad</th>
+
+                        <th>Estado</th>
+
+                        <th>Asignar Entidad</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for r in reportes %}
+
+                    <tr>
+
+                        <td>
+                            <strong>#{{ r.id }}</strong>
+                        </td>
+
+                        <td>
+                            {{ r.titulo }}
+                        </td>
+
+                        <td>
+                            {{ r.direccion }}
+                        </td>
+
+                        <td>
+
+                            {% if r.prioridad == 'Alta' %}
+
+                                <span class="badge bg-danger">
+                                    Alta
+                                </span>
+
+                            {% elif r.prioridad == 'Media' %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Media
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-success">
+                                    Baja
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-info text-dark">
+
+                                {{ r.estado }}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <form method="POST"
+                                  action="/asignar-entidad/{{ r.id }}"
+                                  class="form-asignar">
+
+                                <select name="entidad_id"
+                                        class="form-select mb-2"
+                                        required>
+
+                                    <option value="">
+                                        Seleccionar entidad
                                     </option>
-                                {% endfor %}
-                            </select>
 
-                            <button class="btn btn-primary btn-sm w-100">
-                                Asignar
-                            </button>
+                                    {% for e in entidades %}
 
-                        </form>
-                    </td>
+                                        <option value="{{ e.id }}"
+                                            {% if r.entidad_id == e.id %}
+                                                selected
+                                            {% endif %}>
 
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                            {{ e.nombre }}
+
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <button class="btn btn-primary btn-sm w-100">
+
+                                    Asignar Entidad
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
 </div>
+
+<!-- CHART JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<!-- GRAFICAS -->
+
+<div class="row mt-4 g-4">
+
+    <!-- ESTADOS -->
+
+    <div class="col-lg-6">
+
+        <div class="card shadow border-0 p-4">
+
+            <h5 class="fw-bold mb-3">
+                📊 Estado de Incidencias
+            </h5>
+
+            <canvas id="graficaEstados"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- PRIORIDAD -->
+
+    <div class="col-lg-6">
+
+        <div class="card shadow border-0 p-4">
+
+            <h5 class="fw-bold mb-3">
+                🚨 Prioridad de Reportes
+            </h5>
+
+            <canvas id="graficaPrioridad"></canvas>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    
+    // GRAFICA ESTADOS
+    
+
+    new Chart(
+        document.getElementById('graficaEstados'),
+        {
+            type: 'bar',
+
+            data: {
+
+                labels: {{ estados_labels|tojson }},
+
+                datasets: [{
+
+                    label: 'Cantidad',
+
+                    data: {{ estados_data|tojson }},
+
+                    borderWidth: 1
+
+                }]
+            },
+
+            options: {
+
+                responsive: true,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+    // =========================
+    // GRAFICA PRIORIDAD
+    // =========================
+
+    new Chart(
+        document.getElementById('graficaPrioridad'),
+        {
+            type: 'pie',
+
+            data: {
+
+                labels: {{ prioridad_labels|tojson }},
+
+                datasets: [{
+
+                    data: {{ prioridad_data|tojson }},
+
+                    borderWidth: 1
+
+                }]
+            },
+
+            options: {
+
+                responsive: true
+
+            }
+
+        }
+    );
+
+</script>
 
 {% endblock %}
