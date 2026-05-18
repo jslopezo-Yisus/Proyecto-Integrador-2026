@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from .config import Config
+from datetime import timedelta
 import os
 
 db = SQLAlchemy()
@@ -11,6 +12,8 @@ def create_app():
         static_folder='Static',       
         static_url_path='/static'     
     )
+
+    app.permanent_session_lifetime = timedelta(minutes=10)
 
     app.config.from_object(Config)
 

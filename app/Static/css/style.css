@@ -362,3 +362,473 @@ section h2 {
     background: #ffe5e5;
     transform: translateY(-3px);
 }
+
+/* =========================
+   HOMEFIX LANDING PAGE
+========================= */
+
+body{
+    font-family: 'Poppins', sans-serif;
+    background: #f4f7fb;
+    overflow-x: hidden;
+}
+
+
+/* =========================
+   NAVBAR
+========================= */
+
+.homefix-navbar{
+    background: linear-gradient(90deg, #16a34a, #2563eb);
+    padding: 14px 0;
+}
+
+.homefix-logo{
+    height: 42px;
+    margin-right: 10px;
+}
+
+.nav-btn{
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.nav-btn:hover{
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.hero-section{
+    position: relative;
+    min-height: 650px;
+    background:
+        linear-gradient(
+            rgba(10, 20, 25, 0.65),
+            rgba(10, 20, 25, 0.65)
+        ),
+        url("../img/familia.jpg");
+
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+}
+
+.hero-overlay{
+    width: 100%;
+    padding: 80px 0;
+}
+
+.hero-card{
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+    padding: 45px;
+    max-width: 560px;
+    color: white;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.hero-badge{
+    display: inline-block;
+    background: rgba(255,255,255,0.9);
+    color: #166534;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.hero-title{
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 25px;
+}
+
+.hero-text{
+    font-size: 1.1rem;
+    color: #f1f5f9;
+    margin-bottom: 35px;
+}
+
+.hero-buttons{
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-hero-primary{
+    background: #22c55e;
+    border: none;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.3s;
+    box-shadow: 0 10px 20px rgba(34,197,94,0.3);
+}
+
+.btn-hero-primary:hover{
+    transform: translateY(-3px);
+    background: #16a34a;
+    color: white;
+}
+
+.btn-hero-secondary{
+    border: 2px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-hero-secondary:hover{
+    background: white;
+    color: #111827;
+}
+
+
+/* =========================
+   FEATURES
+========================= */
+
+.features-section{
+    margin-top: -70px;
+    position: relative;
+    z-index: 10;
+}
+
+.feature-card{
+    background: white;
+    border-radius: 24px;
+    padding: 35px 25px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    height: 100%;
+}
+
+.feature-card:hover{
+    transform: translateY(-8px);
+}
+
+.feature-icon{
+    width: 75px;
+    height: 75px;
+    border-radius: 20px;
+    margin: auto;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: white;
+}
+
+.icon-green{
+    background: linear-gradient(135deg,#16a34a,#22c55e);
+}
+
+.icon-blue{
+    background: linear-gradient(135deg,#2563eb,#3b82f6);
+}
+
+.icon-red{
+    background: linear-gradient(135deg,#dc2626,#ef4444);
+}
+
+.feature-card h3{
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #1f2937;
+}
+
+.feature-card p{
+    color: #6b7280;
+    margin-bottom: 0;
+}
+
+
+/* =========================
+   HOW IT WORKS
+========================= */
+
+.how-section{
+    padding: 110px 0 90px;
+    background: #ffffff;
+}
+
+.section-title{
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #16a34a;
+}
+
+.section-subtitle{
+    color: #6b7280;
+    margin-top: 10px;
+}
+
+.step-card{
+    background: #fff;
+    border-radius: 24px;
+    padding: 40px 25px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+    transition: 0.3s;
+    height: 100%;
+}
+
+.step-card:hover{
+    transform: translateY(-6px);
+}
+
+.step-icon{
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#16a34a,#22c55e);
+    margin: auto;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    box-shadow: 0 10px 20px rgba(34,197,94,0.3);
+}
+
+.step-card h4{
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.step-card p{
+    color: #6b7280;
+}
+
+
+/* =========================
+   EMERGENCY SECTION
+========================= */
+
+.emergency-section{
+    background: linear-gradient(90deg,#14b8a6,#2563eb);
+    padding: 90px 0;
+}
+
+.emergency-title{
+    color: white;
+    font-size: 2.4rem;
+    font-weight: 800;
+}
+
+.emergency-subtitle{
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 50px;
+}
+
+.emergency-card{
+    background: white;
+    border-radius: 22px;
+    padding: 28px 20px;
+    text-align: center;
+    transition: 0.3s;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    height: 100%;
+}
+
+.emergency-card:hover{
+    transform: scale(1.04);
+}
+
+.emergency-card h5{
+    color: #dc2626;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.emergency-card p{
+    margin-bottom: 0;
+    color: #374151;
+    font-weight: 500;
+}
+
+
+/* =========================
+   CTA SECTION
+========================= */
+
+.cta-section{
+    padding: 90px 0;
+}
+
+.cta-box{
+    background: linear-gradient(135deg,#16a34a,#22c55e);
+    border-radius: 30px;
+    padding: 70px 40px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 15px 35px rgba(34,197,94,0.25);
+}
+
+.cta-box h2{
+    font-size: 2.6rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.cta-box p{
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 30px;
+}
+
+.cta-btn{
+    background: white;
+    color: #166534;
+    padding: 14px 30px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.cta-btn:hover{
+    background: #f3f4f6;
+    transform: translateY(-3px);
+    color: #166534;
+}
+
+
+/* =========================
+   ENTITY SECTION
+========================= */
+
+.entity-section{
+    padding-bottom: 90px;
+}
+
+.entity-card{
+    background: white;
+    border-radius: 28px;
+    padding: 45px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+    height: 100%;
+}
+
+.entity-title{
+    color: #16a34a;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.entity-info p{
+    margin-bottom: 10px;
+    color: #374151;
+}
+
+.entity-divider{
+    border-top: 1px solid #e5e7eb;
+    margin: 25px 0;
+}
+
+.entity-icon{
+    font-size: 80px;
+    color: #22c55e;
+    margin-bottom: 20px;
+}
+
+.token-badge{
+    display: inline-block;
+    background: linear-gradient(135deg,#16a34a,#22c55e);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 700;
+    margin-top: 15px;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.homefix-footer{
+    background: #0f172a;
+    color: white;
+    text-align: center;
+    padding: 22px 0;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:992px){
+
+    .hero-title{
+        font-size: 3rem;
+    }
+
+    .hero-card{
+        padding: 35px;
+    }
+}
+
+@media(max-width:768px){
+
+    .hero-section{
+        min-height: auto;
+    }
+
+    .hero-title{
+        font-size: 2.4rem;
+    }
+
+    .hero-card{
+        padding: 30px;
+    }
+
+    .section-title{
+        font-size: 2rem;
+    }
+
+    .cta-box h2{
+        font-size: 2rem;
+    }
+
+    .entity-card{
+        padding: 35px;
+    }
+}
+
+@media(max-width:576px){
+
+    .hero-title{
+        font-size: 2rem;
+    }
+
+    .hero-buttons{
+        flex-direction: column;
+    }
+
+    .btn-hero-primary,
+    .btn-hero-secondary{
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -68,6 +68,22 @@ def index():
 @main.route ('/login', methods=['GET', 'POST'])
 def login():
 
+    if 'user_id' in session:
+
+        rol = session.get('rol')
+
+        if rol == 'admin':
+            return redirect('/admin')
+
+        elif rol == 'tecnico':
+            return redirect('/tecnico')
+
+        elif rol == 'entidad':
+            return redirect('/entidad')
+
+        else:
+            return redirect('/dashboard')
+
     if request.method == 'POST':
 
         correo = request.form.get('correo')
@@ -96,6 +112,9 @@ def login():
             )
 
         # SESIÓN
+
+        session.permanent=True
+
         session['user_id'] = user.id
         session['rol'] = user.rol
         session['nombre'] = user.nombre
@@ -124,6 +143,23 @@ def login():
 
 @main.route('/registro', methods=['GET', 'POST'])
 def registro():
+
+    if 'user_id' in session:
+
+        rol = session.get('rol')
+
+        if rol == 'admin':
+            return redirect('/admin')
+
+        elif rol == 'tecnico':
+            return redirect('/tecnico')
+
+        elif rol == 'entidad':
+            return redirect('/entidad')
+
+        else:
+            return redirect('/dashboard')
+    
     if request.method == 'POST':
 
         nombre = request.form.get('nombre')
