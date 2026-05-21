@@ -18,6 +18,8 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.utils import ImageReader
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
+from flask import Blueprint, render_template, request, redirect, session, flash
+from flask import jsonify
 import os
 import io
 import uuid
@@ -995,7 +997,7 @@ def generar_pdf_interno(id):
     for h in historial:
 
         historial_data.append([
-            str(h.fecha),
+            str(h.fecha_creacion),
             h.accion,
             h.detalle
         ])
@@ -1282,3 +1284,327 @@ def pdf_ciudadano(id):
         return redirect('/login')
 
     return generar_pdf_ciudadano(id)
+
+
+# APIs HOMEFIX
+
+
+# API 1 - LISTAR TODOS LOS REPORTES
+
+
+@main.route('/api/reportes', methods=['GET'])
+def api_reportes():
+
+    reportes = Reporte.query.all()
+
+    lista = []
+
+    for r in reportes:
+
+        lista.append({
+
+            'id': r.id,
+            'titulo': r.titulo,
+            'descripcion': r.descripcion,
+            'direccion': r.direccion,
+            'tipo_dano': r.tipo_dano,
+            'prioridad': r.prioridad,
+            'estado': r.estado,
+            'latitud': r.latitud,
+            'longitud': r.longitud,
+            'fecha': str(r.fecha_creacion),
+            'tecnico_id': r.tecnico_id,
+            'entidad_id': r.entidad_id
+
+        })
+
+    return jsonify(lista)
+
+
+
+
+# API 2 - DETALLE DE UN REPORTE
+
+from flask import jsonify
+
+@main.route('/api/reportes/<int:id>', methods=['GET'])
+def api_detalle_reporte(id):
+
+    reporte = Reporte.query.get_or_404(id)
+
+    data = {
+
+        'id': reporte.id,
+        'titulo': reporte.titulo,
+        'descripcion': reporte.descripcion,
+        'direccion': reporte.direccion,
+        'tipo_dano': reporte.tipo_dano,
+        'prioridad': reporte.prioridad,
+        'estado': reporte.estado,
+        'latitud': reporte.latitud,
+        'longitud': reporte.longitud,
+
+        'fecha_creacion': str(reporte.fecha_creacion),
+
+        'usuario_id': reporte.user_id,
+        'tecnico_id': reporte.tecnico_id,
+        'entidad_id': reporte.entidad_id
+
+    }
+
+    return jsonify(data)
+
+
+
+
+# API 3 - CREAR REPORTE
+
+
+@main.route('/api/crear-reporte', methods=['POST'])
+def api_crear_reporte():
+
+    data = request.get_json()
+
+    titulo = data.get('titulo')
+    descripcion = data.get('descripcion')
+    direccion = data.get('direccion')
+    tipo_dano = data.get('tipo_dano')
+
+    prioridad = 'media'
+
+    if tipo_dano == 'eléctrico':
+        prioridad = 'alta'
+
+    elif tipo_dano == 'estructura':
+        prioridad = 'alta'
+
+    elif tipo_dano == 'plomería':
+        prioridad = 'media'
+
+    else:
+        prioridad = 'baja'
+
+    nuevo = Reporte(
+
+        titulo=titulo,
+        descripcion=descripcion,
+        direccion=direccion,
+        tipo_dano=tipo_dano,
+        prioridad=prioridad,
+        estado='Iniciado'
+
+    )
+
+    db.session.add(nuevo)
+    db.session.commit()
+
+    return jsonify({
+
+        'mensaje': 'Reporte creado correctamente',
+        'reporte_id': nuevo.id
+
+    }), 201
+
+
+
+
+# API 4 - KPIs ADMINISTRATIVOS
+
+
+@main.route('/api/kpis', methods=['GET'])
+def api_kpis():
+
+    total_reportes = Reporte.query.count()
+
+    resueltos = Reporte.query.filter_by(
+        estado='Solucionado'
+    ).count()
+
+    pendientes = Reporte.query.filter(
+        Reporte.estado != 'Solucionado'
+    ).count()
+
+    tecnicos = Usuario.query.filter_by(
+        rol='tecnico'
+    ).count()
+
+    entidades = Entidad.query.count()
+
+    promedio = db.session.query(
+        db.func.avg(Reporte.calificacion)
+    ).scalar()
+
+    if not promedio:
+        promedio = 0
+
+    data = {
+
+        'total_reportes': total_reportes,
+        'reportes_resueltos': resueltos,
+        'reportes_pendientes': pendientes,
+        'tecnicos_activos': tecnicos,
+        'entidades': entidades,
+        'satisfaccion_promedio': round(promedio, 1)
+
+    }
+
+    return jsonify(data)
+
+
+
+
+# API 5 - LISTAR TECNICOS
+
+
+@main.route('/api/tecnicos', methods=['GET'])
+def api_tecnicos():
+
+    tecnicos = Usuario.query.filter_by(
+        rol='tecnico'
+    ).all()
+
+    lista = []
+
+    for t in tecnicos:
+
+        lista.append({
+
+            'id': t.id,
+            'nombre': t.nombre,
+            'correo': t.correo,
+            'entidad_id': t.entidad_id
+
+        })
+
+    return jsonify(lista)
+
+
+
+
+# API 6 - LISTAR ENTIDADES
+
+
+@main.route('/api/entidades', methods=['GET'])
+def api_entidades():
+
+    entidades = Entidad.query.all()
+
+    lista = []
+
+    for e in entidades:
+
+        lista.append({
+
+            'id': e.id,
+            'nombre': e.nombre
+
+        })
+
+    return jsonify(lista)
+
+
+
+
+# API 7 - HISTORIAL DE REPORTE
+
+
+@main.route('/api/historial/<int:id>', methods=['GET'])
+def api_historial(id):
+
+    historial = HistorialReporte.query.filter_by(
+        reporte_id=id
+    ).all()
+
+    lista = []
+
+    for h in historial:
+
+        lista.append({
+
+            'fecha': str(h.fecha),
+            'accion': h.accion,
+            'detalle': h.detalle
+
+        })
+
+    return jsonify(lista)
+
+
+
+
+# API 8 - ELIMINAR REPORTE
+
+
+@main.route('/api/eliminar-reporte/<int:id>', methods=['DELETE'])
+def api_eliminar_reporte(id):
+
+    reporte = Reporte.query.get_or_404(id)
+
+    db.session.delete(reporte)
+    db.session.commit()
+
+    return jsonify({
+
+        'mensaje': 'Reporte eliminado correctamente'
+
+    })
+
+
+
+
+# API 9 - ACTUALIZAR ESTADO
+
+
+@main.route('/api/actualizar-estado/<int:id>', methods=['PUT'])
+def api_actualizar_estado(id):
+
+    reporte = Reporte.query.get_or_404(id)
+
+    data = request.get_json()
+
+    nuevo_estado = data.get('estado')
+
+    reporte.estado = nuevo_estado
+
+    db.session.commit()
+
+    return jsonify({
+
+        'mensaje': 'Estado actualizado correctamente',
+        'nuevo_estado': nuevo_estado
+
+    })
+
+
+
+
+# API 10 - DASHBOARD TECNICO
+
+
+@main.route('/api/dashboard-tecnico/<int:id>', methods=['GET'])
+def api_dashboard_tecnico(id):
+
+    total = Reporte.query.filter_by(
+        tecnico_id=id
+    ).count()
+
+    resueltos = Reporte.query.filter_by(
+        tecnico_id=id,
+        estado='Solucionado'
+    ).count()
+
+    pendientes = Reporte.query.filter(
+        Reporte.tecnico_id == id,
+        Reporte.estado != 'Solucionado'
+    ).count()
+
+    data = {
+
+        'tecnico_id': id,
+        'total_reportes': total,
+        'resueltos': resueltos,
+        'pendientes': pendientes
+
+    }
+
+    return jsonify(data)

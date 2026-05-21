@@ -96,7 +96,7 @@ href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
                 <p>
                     <strong>📅 Fecha:</strong><br>
-                    {{ reporte.fecha }}
+                    {{ reporte.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}
                 </p>
 
                 {% if reporte.tecnico %}

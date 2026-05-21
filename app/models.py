@@ -45,81 +45,195 @@ class Reporte(db.Model):
 
     __tablename__ = 'reportes'
 
-    id = db.Column(db.Integer, primary_key=True)
+    
+    # ID PRINCIPAL
+    
 
-    titulo = db.Column(db.String(100), nullable=False)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
-    descripcion = db.Column(db.Text, nullable=False)
+    
+    # INFORMACIÓN GENERAL
+    
 
-    direccion = db.Column(db.String(200), nullable=False)
+    titulo = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-    prioridad = db.Column(db.String(50))
+    descripcion = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    direccion = db.Column(
+        db.String(200),
+        nullable=False
+    )
+
+    tipo_dano = db.Column(
+        db.String(100)
+    )
+
+    imagen = db.Column(
+        db.String(200)
+    )
+
+    motivo_eliminacion = db.Column(
+        db.Text
+    )
+
+    
+    # GEOLOCALIZACIÓN
+    
+
+    latitud = db.Column(
+        db.Float
+    )
+
+    longitud = db.Column(
+        db.Float
+    )
+
+    
+    # PRIORIDAD Y ESTADO
+    
+
+    prioridad = db.Column(
+        db.String(50),
+        default='Media'
+    )
 
     estado = db.Column(
         db.String(50),
         default='Pendiente'
     )
 
-    imagen = db.Column(db.String(200))
+    
+    # FECHAS
+    
 
-    motivo_eliminacion = db.Column(db.Text)
-
-    latitud = db.Column(db.Float)
-
-    longitud = db.Column(db.Float)
-
-    fecha = db.Column(
+    fecha_creacion = db.Column(
         db.DateTime,
         default=datetime.utcnow
     )
 
+    fecha_actualizacion = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
+    fecha_solucion = db.Column(
+        db.DateTime
+    )
+
+    
+    # SATISFACCIÓN
+    
+
+    calificacion = db.Column(
+        db.Integer
+    )
+
+    comentario_calificacion = db.Column(
+        db.Text
+    )
+
+    
+    # RELACIONES
+    
+
     # 👤 Usuario creador
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('usuarios.id')
     )
 
     # 👷 Técnico asignado
+
     tecnico_id = db.Column(
         db.Integer,
         db.ForeignKey('usuarios.id')
     )
 
     # 🏢 Entidad asignada
+
     entidad_id = db.Column(
         db.Integer,
         db.ForeignKey('entidades.id')
     )
 
-    # 🔗 RELACION USUARIO
+    
+    # RELACIONES SQLALCHEMY
+    
+
     usuario = db.relationship(
         'Usuario',
         foreign_keys=[user_id]
     )
 
-    # 🔗 RELACION TECNICO
+
     tecnico = db.relationship(
         'Usuario',
         foreign_keys=[tecnico_id]
     )
 
-    fecha_creacion = db.Column(
-    db.DateTime,
-    default = datetime.utcnow
-    )
     
-    fecha_solucion = db.Column(
-    db.DateTime
-    )
+    # SERIALIZADOR API
     
-    calificacion = db.Column(
-    db.Integer
-    
-    )
-    
-    comentario_calificacion = db.Column(
-    db.Text
-    )
+
+    def to_dict(self):
+
+        return {
+
+            "id": self.id,
+
+            "titulo": self.titulo,
+
+            "descripcion": self.descripcion,
+
+            "direccion": self.direccion,
+
+            "tipo_dano": self.tipo_dano,
+
+            "prioridad": self.prioridad,
+
+            "estado": self.estado,
+
+            "latitud": self.latitud,
+
+            "longitud": self.longitud,
+
+            "fecha_creacion": (
+                self.fecha_creacion.strftime('%Y-%m-%d %H:%M')
+                if self.fecha_creacion else None
+            ),
+
+            "fecha_actualizacion": (
+                self.fecha_actualizacion.strftime('%Y-%m-%d %H:%M')
+                if self.fecha_actualizacion else None
+            ),
+
+            "fecha_solucion": (
+                self.fecha_solucion.strftime('%Y-%m-%d %H:%M')
+                if self.fecha_solucion else None
+            ),
+
+            "calificacion": self.calificacion,
+
+            "comentario_calificacion":
+                self.comentario_calificacion,
+
+            "user_id": self.user_id,
+
+            "tecnico_id": self.tecnico_id,
+
+            "entidad_id": self.entidad_id
+        }
 
 
 # TOKEN TÉCNICO
